@@ -11,7 +11,8 @@ import {
   setMode,
   setTempThreshold,
   setHumThreshold,
-  setFanCycle
+  setFanCycle,
+  DEVICE_ID
 } from "../api/deviceApi";
 
 import toast from "react-hot-toast";
@@ -23,8 +24,10 @@ function Dashboard() {
   const isGprsConnected = data?.gprsStatus
     ? /connect/i.test(data.gprsStatus)
     : false;
+  const isPoweredOn = data?.powerOn === 1;
   const isAutoMode = data?.mode?.toUpperCase() === "AUTO";
-  const actionDisabled = !isGprsConnected || isAutoMode;
+  const actionEnabledBase = isGprsConnected && isPoweredOn;
+  const actionDisabled = !actionEnabledBase;
 
   const displayData = data
     ? {
@@ -39,6 +42,8 @@ function Dashboard() {
         uptime: isGprsConnected ? data.uptime : 0,
         mode: data.mode,
         gprsStatus: data.gprsStatus
+        ,
+        powerOn: data.powerOn
       }
     : null;
 
@@ -55,8 +60,49 @@ function Dashboard() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 5000);
-    return () => clearInterval(interval);
+
+    const apiBase = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.host}`;
+    const wsBase = apiBase.replace(/^http/, "ws");
+    const wsUrl = `${wsBase}/device/${DEVICE_ID}/ws`;
+
+    let ws;
+    let reconnectTimer;
+
+    const connect = () => {
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {};
+
+      ws.onmessage = (evt) => {
+        try {
+          const payload = JSON.parse(evt.data);
+          setData(payload);
+          setLoading(false);
+        } catch (e) {
+          console.error("Invalid WS message", e);
+        }
+      };
+
+      ws.onerror = (err) => {
+        console.error("WebSocket error", err);
+        try {
+          ws.close();
+        } catch (e) {}
+      };
+
+      ws.onclose = () => {
+        reconnectTimer = setTimeout(connect, 3000);
+      };
+    };
+
+    connect();
+
+    return () => {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      try {
+        ws && ws.close();
+      } catch (e) {}
+    };
   }, []);
 
   const handleToggle = async (device, currentStatus) => {
@@ -64,7 +110,7 @@ function Dashboard() {
       const action = currentStatus ? "off" : "on";
       await toggleDevice(device, action);
       toast.success(`${device} turned ${action}`);
-      await loadData();
+      
     } catch {
       toast.error("Action failed");
     }
@@ -75,7 +121,7 @@ function Dashboard() {
       const mode = data.mode === "AUTO" ? "manual" : "auto";
       await setMode(mode);
       toast.success(`Switched to ${mode} mode`);
-      await loadData();
+      
     } catch {
       toast.error("Mode change failed");
     }
@@ -84,19 +130,19 @@ function Dashboard() {
   const saveTemp = async (value) => {
     await setTempThreshold(Number(value));
     toast.success("Temperature threshold updated");
-    await loadData();
+    
   };
 
   const saveHum = async (value) => {
     await setHumThreshold(Number(value));
     toast.success("Humidity threshold updated");
-    await loadData();
+    
   };
 
   const saveFanCycle = async (value) => {
     await setFanCycle(Number(value));
     toast.success("Fan cycle time updated");
-    await loadData();
+    
   };
 
   if (loading || !data) return <Loader />;
@@ -105,7 +151,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <Header gprsStatus={displayData?.gprsStatus} />
+      <Header gprsStatus={displayData?.gprsStatus} powerOn={displayData?.powerOn} />
 
       <p className="section-label">Sensor Readings</p>
       <div className="grid">
@@ -124,7 +170,7 @@ function Dashboard() {
           <button
             className={`mode-circle ${isAuto ? "auto" : "manual"}`}
             onClick={handleMode}
-            disabled={!isGprsConnected}
+            disabled={true}
             aria-label={`Switch to ${isAuto ? "manual" : "auto"} mode`}
           >
             <i className={`ti ${isAuto ? "ti-robot" : "ti-hand-click"}`} />
@@ -141,19 +187,19 @@ function Dashboard() {
         <ToggleCard
           title="Motor"
           status={displayData.motor}
-          disabled={actionDisabled}
+          disabled={actionDisabled || isAuto}
           onToggle={() => handleToggle("motor", displayData.motor)}
         />
         <ToggleCard
           title="Fan"
           status={displayData.fan}
-          disabled={actionDisabled}
+          disabled={actionDisabled || isAuto}
           onToggle={() => handleToggle("fan", displayData.fan)}
         />
         <ToggleCard
           title="Heater"
           status={displayData.heater}
-          disabled={actionDisabled}
+          disabled={actionDisabled || isAuto}
           onToggle={() => handleToggle("heater", displayData.heater)}
         />
       </div>
@@ -164,19 +210,19 @@ function Dashboard() {
           title="Temperature Threshold"
           value={displayData.tempThreshold}
           onSave={saveTemp}
-          disabled={actionDisabled}
+          disabled={actionDisabled || !isAuto}
         />
         <ThresholdCard
           title="Humidity Threshold"
           value={displayData.humThreshold}
           onSave={saveHum}
-          disabled={actionDisabled}
+          disabled={actionDisabled || !isAuto}
         />
         <ThresholdCard
           title="Fan Cycle Time"
           value={displayData.fanCycleTime}
           onSave={saveFanCycle}
-          disabled={actionDisabled}
+          disabled={actionDisabled || !isAuto}
         />
       </div>
     </div>

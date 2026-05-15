@@ -4,7 +4,7 @@ const API = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL
 });
 
-const DEVICE_ID = "YADH-B4ACF589";
+export const DEVICE_ID = "YADH-B4ACF589";
 
 export const getStatus = async () => {
   const res = await API.get(`/device/${DEVICE_ID}/status`);
