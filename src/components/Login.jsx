@@ -14,12 +14,14 @@ function Login({ setLoggedIn }) {
   return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-logo">
-          <i className="ti ti-leaf" aria-hidden="true" />
-        </div>
+        <div className="login-header">
+          <div className="login-logo">
+            <i className="ti ti-leaf" aria-hidden="true" />
+          </div>
 
-        <h1>Sericulture IoT</h1>
-        <p>Smart monitoring system for silkworm farms</p>
+          <h1>SeriSmart</h1>
+        </div>
+        {/* <p>Smart monitoring system for silkworm farms</p> */}
 
         <div className="input-group">
           <i className="ti ti-user input-icon" aria-hidden="true" />
