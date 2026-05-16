@@ -20,7 +20,7 @@ function Login({ setLoggedIn }) {
             <img src="/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
           </div>
 
-          <h1>SeriSmart</h1>
+          <h1>Sericulture IOT</h1>
         </div>
         {/* <p>Smart monitoring system for silkworm farms</p> */}
 
