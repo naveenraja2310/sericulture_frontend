@@ -8,7 +8,7 @@ function Header({ onLogout }) {
     <div className="header">
       <div className="header-left">
         <div className="header-icon">
-          <img src="/../public/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
+          <img src="/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
         </div>
         <div>
           <h2>Sericulture Dashboard</h2>
