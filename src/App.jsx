@@ -13,7 +13,7 @@ function App() {
       {!loggedIn ? (
         <Login setLoggedIn={setLoggedIn} />
       ) : (
-        <Dashboard />
+        <Dashboard onLogout={() => setLoggedIn(false)} />
       )}
     </>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
+import StatusOverview from "../components/StatusOverview";
 import StatusCard from "../components/StatusCard";
 import ToggleCard from "../components/ToggleCard";
 import ThresholdCard from "../components/ThresholdCard";
@@ -17,7 +18,7 @@ import {
 
 import toast from "react-hot-toast";
 
-function Dashboard() {
+function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -151,7 +152,12 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <Header gprsStatus={displayData?.gprsStatus} powerOn={displayData?.powerOn} />
+      <Header onLogout={onLogout} />
+      <StatusOverview 
+        powerOn={displayData?.powerOn} 
+        gprsStatus={displayData?.gprsStatus} 
+        onRefresh={loadData}
+      />
 
       <p className="section-label">Sensor Readings</p>
       <div className="grid">

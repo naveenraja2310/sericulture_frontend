@@ -16,7 +16,8 @@ function Login({ setLoggedIn }) {
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
-            <i className="ti ti-leaf" aria-hidden="true" />
+            {/* <i className="ti ti-leaf" aria-hidden="true" /> */}
+            <img src="/../public/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
           </div>
 
           <h1>SeriSmart</h1>

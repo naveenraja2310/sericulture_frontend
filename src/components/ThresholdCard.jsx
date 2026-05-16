@@ -44,7 +44,7 @@ function ThresholdCard({ title, value, onSave, disabled }) {
           aria-label={`Save ${title}`}
         >
           <i className="ti ti-device-floppy" style={{ fontSize: 15 }} aria-hidden="true" />
-          Save
+          Set
         </button>
       </div>
     </div>
