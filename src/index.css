@@ -683,7 +683,6 @@ body {
 
   .header { padding: 12px 14px; gap: 10px; }
   .header-left h2 { font-size: 1.05rem; }
-  .header-left p  { display: none; }
 
   /* Hide full pills, show icon-only on tablet */
   .status-pill__label,
