@@ -407,8 +407,6 @@ body {
 .status-overview {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
@@ -417,10 +415,32 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
-.so-side { display: flex; align-items: center; flex: 1; }
-.so-side--right { justify-content: flex-end; }
-.so-center { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-.so-divider { width: 1px; height: 34px; background: var(--border-default); }
+/* Equal flex-basis forces both sides to be the same width,
+   so the center column lands exactly in the middle. */
+.so-side {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.so-side--right {
+  justify-content: flex-end;
+}
+
+/* Center column must NOT grow or shrink */
+.so-center {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.so-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border-default);
+}
 
 .status-item { display: flex; align-items: center; gap: 10px; }
 
