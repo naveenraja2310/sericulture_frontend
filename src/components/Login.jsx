@@ -1,14 +1,41 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { login } from "../api/authApi";
+import { saveAuthData } from "../utils/auth";
 
 function Login({ setLoggedIn }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    if (!username || !password) {
+      toast.error("Please enter username and password");
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("token", "dummy-token");
-      setLoggedIn(true);
-    }, 1000);
+
+    try {
+      const response = await login({ username, password });
+
+      if (response?.statusCode === 200 && response?.data) {
+        saveAuthData({
+          deviceId: response.data.deviceId,
+          isAdmin: response.data.isAdmin
+        });
+
+        toast.success("Login successful");
+        setLoggedIn(true);
+      } else {
+        toast.error(response?.statusMessage || "Login failed");
+      }
+    } catch (error) {
+      toast.error("Unable to login. Please check credentials.");
+      console.error("Login error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,12 +53,24 @@ function Login({ setLoggedIn }) {
 
         <div className="input-group">
           <i className="ti ti-user input-icon" aria-hidden="true" />
-          <input type="text" placeholder="Username" autoComplete="username" />
+          <input
+            type="text"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            placeholder="Username"
+            autoComplete="username"
+          />
         </div>
 
         <div className="input-group">
           <i className="ti ti-lock input-icon" aria-hidden="true" />
-          <input type="password" placeholder="Password" autoComplete="current-password" />
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Password"
+            autoComplete="current-password"
+          />
         </div>
 
         <button onClick={handleLogin} disabled={loading}>

@@ -13,7 +13,7 @@ import {
   setTempThreshold,
   setHumThreshold,
   setFanCycle,
-  DEVICE_ID
+  getDeviceId
 } from "../api/deviceApi";
 
 import toast from "react-hot-toast";
@@ -42,8 +42,7 @@ function Dashboard({ onLogout }) {
         fanCycleTime: isGprsConnected ? data.fanCycleTime : 0,
         uptime: isGprsConnected ? data.uptime : 0,
         mode: data.mode,
-        gprsStatus: data.gprsStatus
-        ,
+        gprsStatus: data.gprsStatus,
         powerOn: data.powerOn
       }
     : null;
@@ -64,7 +63,7 @@ function Dashboard({ onLogout }) {
 
     const apiBase = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.host}`;
     const wsBase = apiBase.replace(/^http/, "ws");
-    const wsUrl = `${wsBase}/device/${DEVICE_ID}/ws`;
+    const wsUrl = `${wsBase}/device/${getDeviceId()}/ws`;
 
     let ws;
     let reconnectTimer;
@@ -162,7 +161,7 @@ function Dashboard({ onLogout }) {
       <p className="section-label">Sensor Readings</p>
       <div className="grid">
         <StatusCard title="Temperature" value={displayData.temperature.toFixed(1)} unit="°C" />
-        <StatusCard title="Humidity"    value={displayData.humidity} unit="%" />
+        <StatusCard title="Humidity"    value={displayData.humidity.toFixed(2)} unit="%" />
       </div>
 
       <p className="section-label">Device Control</p>
@@ -216,19 +215,19 @@ function Dashboard({ onLogout }) {
           title="Temperature Threshold"
           value={displayData.tempThreshold}
           onSave={saveTemp}
-          disabled={actionDisabled || !isAuto}
+          disabled={actionDisabled}
         />
         <ThresholdCard
           title="Humidity Threshold"
           value={displayData.humThreshold}
           onSave={saveHum}
-          disabled={actionDisabled || !isAuto}
+          disabled={actionDisabled}
         />
         <ThresholdCard
           title="Fan Cycle Time"
           value={displayData.fanCycleTime}
           onSave={saveFanCycle}
-          disabled={actionDisabled || !isAuto}
+          disabled={actionDisabled}
         />
       </div>
     </div>

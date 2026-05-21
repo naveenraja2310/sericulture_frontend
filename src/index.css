@@ -404,20 +404,18 @@ body {
 .gprs-badge.connected    { background: #f0fdf4; color: var(--accent-success); border: 1.5px solid #bbf7d0; }
 .gprs-badge.disconnected { background: #fef2f2; color: var(--accent-danger);  border: 1.5px solid #fecaca; }
 
-/* ─────────────── STATUS OVERVIEW ─────────────── */
+/* ── STATUS OVERVIEW ── */
 .status-overview {
   display: flex;
   align-items: center;
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  padding: 14px 16px;
+  padding: 14px 18px;
   margin-bottom: 20px;
   box-shadow: var(--shadow-sm);
 }
 
-/* Equal flex-basis forces both sides to be the same width,
-   so the center column lands exactly in the middle. */
 .so-side {
   flex: 1 1 0;
   min-width: 0;
@@ -429,7 +427,6 @@ body {
   justify-content: flex-end;
 }
 
-/* Center column must NOT grow or shrink */
 .so-center {
   flex: 0 0 auto;
   display: flex;
@@ -439,42 +436,100 @@ body {
 
 .so-divider {
   width: 1px;
-  height: 36px;
+  height: 34px;
   background: var(--border-default);
 }
 
-.status-item { display: flex; align-items: center; gap: 10px; }
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
+/* ── icon box ── */
 .status-icon-wrap {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
+  font-size: 19px;
   flex-shrink: 0;
 }
 
-.status-icon-wrap.on  { background: #f0fdf4; color: var(--accent-success); border: 1px solid #bbf7d0; }
-.status-icon-wrap.off { background: #fef2f2; color: var(--accent-danger);  border: 1px solid #fecaca; }
+.status-icon-wrap.on  { background: #f0fdf4; color: var(--accent-success); border: 1.5px solid #bbf7d0; }
+.status-icon-wrap.off { background: #fef2f2; color: var(--accent-danger);  border: 1.5px solid #fecaca; }
 
+/* ── text stack ── */
 .status-text { display: flex; flex-direction: column; gap: 1px; }
-.status-text--right { text-align: right; }
 
 .status-text__label {
-  font-size: 0.65rem;
+  font-size: 0.64rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.11em;
   color: var(--text-muted);
   font-weight: 600;
 }
 
-.status-text__value { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
+.status-text__value {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 .status-text__value.on  { color: var(--accent-success); }
 .status-text__value.off { color: var(--accent-danger); }
 
-/* ── REFRESH BUTTON ── */
+/* ── signal block: label on top, bars below ── */
+.status-signal-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.signal-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.signal-bars .bar {
+  width: 5px;
+  border-radius: 2px;
+}
+
+.signal-bars .bar:nth-child(1) { height: 7px; }
+.signal-bars .bar:nth-child(2) { height: 12px; }
+.signal-bars .bar:nth-child(3) { height: 18px; }
+
+.signal-bars .bar.on  { background: var(--accent-success); }
+.signal-bars .bar.off { background: var(--accent-danger); opacity: 0.5; }
+
+/* ── dot + label/value stack (no pill, no border-radius) ── */
+.status-dot-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot-badge__dot.on {
+  background: var(--accent-success);
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+.status-dot-badge__dot.off { background: var(--accent-danger); }
+
+/* ── refresh button ── */
 .refresh-btn {
   width: 40px;
   height: 40px;
@@ -499,6 +554,16 @@ body {
 }
 
 .refresh-btn:active { transform: rotate(60deg) scale(0.9); }
+
+/* ── responsive ── */
+@media (max-width: 480px) {
+  .status-overview { padding: 12px 14px; }
+  .so-center { gap: 10px; }
+  .so-divider { height: 28px; }
+  .status-icon-wrap { width: 34px; height: 34px; font-size: 16px; border-radius: 10px; }
+  .status-text__value { font-size: 0.8rem; }
+  .status-item { gap: 10px; }
+}
 
 /* ─────────────── TOGGLE CARD ─────────────── */
 .toggle-header {
@@ -538,7 +603,7 @@ body {
 }
 
 .toggle-btn.on  { background: var(--accent-success); }
-.toggle-btn.off { background: #cbd5e1; }
+.toggle-btn.off { background: var(--accent-danger); }
 .toggle-btn.on::after  { left: calc(100% - 24px); }
 .toggle-btn.off::after { left: 3px; }
 

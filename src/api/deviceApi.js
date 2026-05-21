@@ -1,38 +1,47 @@
 import axios from "axios";
+import { getStoredDeviceId } from "../utils/auth";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL
 });
 
-export const DEVICE_ID = "YADH-B4ACF589";
+const defaultDeviceId = "YADH-B4ACF589";
+
+export const getDeviceId = () => getStoredDeviceId() || defaultDeviceId;
 
 export const getStatus = async () => {
-  const res = await API.get(`/device/${DEVICE_ID}/status`);
+  const deviceId = getDeviceId();
+  const res = await API.get(`/device/${deviceId}/status`);
   return res.data;
 };
 
 export const toggleDevice = async (device, action) => {
-  await API.post(`/device/${DEVICE_ID}/${device}/${action}`);
+  const deviceId = getDeviceId();
+  await API.post(`/device/${deviceId}/${device}/${action}`);
 };
 
 export const setMode = async (mode) => {
-  await API.post(`/device/${DEVICE_ID}/mode/${mode}`);
+  const deviceId = getDeviceId();
+  await API.post(`/device/${deviceId}/mode/${mode}`);
 };
 
 export const setTempThreshold = async (value) => {
-  await API.post(`/device/${DEVICE_ID}/temp-threshold`, {
+  const deviceId = getDeviceId();
+  await API.post(`/device/${deviceId}/temp-threshold`, {
     value
   });
 };
 
 export const setHumThreshold = async (value) => {
-  await API.post(`/device/${DEVICE_ID}/hum-threshold`, {
+  const deviceId = getDeviceId();
+  await API.post(`/device/${deviceId}/hum-threshold`, {
     value
   });
 };
 
 export const setFanCycle = async (minutes) => {
-  await API.post(`/device/${DEVICE_ID}/fan-cycle`, {
+  const deviceId = getDeviceId();
+  await API.post(`/device/${deviceId}/fan-cycle`, {
     minutes
   });
 };

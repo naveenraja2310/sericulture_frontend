@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Login from "./components/Login";
 import Dashboard from "./pages/Dashboard";
 import { Toaster } from "react-hot-toast";
+import { clearAuthData, isLoggedIn } from "./utils/auth";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+
+  useEffect(() => {
+    setLoggedIn(isLoggedIn());
+  }, []);
+
+  const handleLogout = () => {
+    clearAuthData();
+    setLoggedIn(false);
+  };
 
   return (
     <>
@@ -13,7 +23,7 @@ function App() {
       {!loggedIn ? (
         <Login setLoggedIn={setLoggedIn} />
       ) : (
-        <Dashboard onLogout={() => setLoggedIn(false)} />
+        <Dashboard onLogout={handleLogout} />
       )}
     </>
   );

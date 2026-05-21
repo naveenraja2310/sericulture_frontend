@@ -1,6 +1,14 @@
 function Header({ onLogout }) {
+  const deviceId = localStorage.getItem("deviceId") || "YADH-B4ACF589";
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+
   const handleLogout = () => {
+    const confirmed = window.confirm("Do you want to logout?");
+    if (!confirmed) return;
+
     localStorage.removeItem("token");
+    localStorage.removeItem("deviceId");
+    localStorage.removeItem("isAdmin");
     onLogout();
   };
 
@@ -12,7 +20,7 @@ function Header({ onLogout }) {
         </div>
         <div>
           <h2>Sericulture Dashboard</h2>
-          <p>YADH-B4ACF589</p>
+          <p>{deviceId} {isAdmin ? "(Admin)" : ""}</p>
         </div>
       </div>
 
