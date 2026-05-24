@@ -3,13 +3,13 @@ import Header from "../components/Header";
 import StatusOverview from "../components/StatusOverview";
 import StatusCard from "../components/StatusCard";
 import ToggleCard from "../components/ToggleCard";
-import ThresholdCard from "../components/ThresholdCard";
 import Loader from "../components/Loader";
 
 import {
   getStatus,
   toggleDevice,
   setMode,
+  setStage,
   setTempThreshold,
   setHumThreshold,
   setFanCycle,
@@ -21,12 +21,13 @@ import toast from "react-hot-toast";
 function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [stageValue, setStageValue] = useState(1);
 
   const isGprsConnected = data?.gprsStatus
     ? /connect/i.test(data.gprsStatus)
     : false;
   const isPoweredOn = data?.powerOn === 1;
-  const isAutoMode = data?.mode?.toUpperCase() === "AUTO";
+  const rawMode = data?.mode ? data.mode.toUpperCase() : "MANUAL";
   const actionEnabledBase = isGprsConnected && isPoweredOn;
   const actionDisabled = !actionEnabledBase;
 
@@ -41,11 +42,26 @@ function Dashboard({ onLogout }) {
         humThreshold: isGprsConnected ? data.humThreshold : 0,
         fanCycleTime: isGprsConnected ? data.fanCycleTime : 0,
         uptime: isGprsConnected ? data.uptime : 0,
-        mode: data.mode,
+        mode: rawMode,
+        activeStage: data.activeStage,
         gprsStatus: data.gprsStatus,
         powerOn: data.powerOn
       }
     : null;
+
+  console.log("Display Data:", displayData);
+
+  const activeStage = displayData?.activeStage ?? 0;
+  const showStageDropdown = activeStage >= 1;
+  const effectiveMode = activeStage >= 1 ? "STAGE" : rawMode;
+  const isAutoMode = effectiveMode === "AUTO";
+  const isStageMode = effectiveMode === "STAGE";
+
+  useEffect(() => {
+    if (displayData?.activeStage) {
+      setStageValue(displayData.activeStage);
+    }
+  }, [displayData?.activeStage]);
 
   const loadData = async () => {
     try {
@@ -116,38 +132,62 @@ function Dashboard({ onLogout }) {
     }
   };
 
-  const handleMode = async () => {
+  const [modeLoading, setModeLoading] = useState(false);
+  const [stageSaving, setStageSaving] = useState(false);
+
+  const handleModeChange = async (targetMode) => {
+    if (displayData?.mode === targetMode || modeLoading) return;
+
     try {
-      const mode = data.mode === "AUTO" ? "manual" : "auto";
-      await setMode(mode);
-      toast.success(`Switched to ${mode} mode`);
-      
+      setModeLoading(true);
+      if (targetMode === "STAGE") {
+        const success = await saveStage(stageValue, { suppressToast: true, refresh: false });
+        if (!success) {
+          return;
+        }
+      } else {
+        await setMode(targetMode.toLowerCase());
+      }
+      await loadData();
+      toast.success(`Switched to ${targetMode} mode`);
     } catch {
       toast.error("Mode change failed");
+    } finally {
+      setModeLoading(false);
     }
   };
 
-  const saveTemp = async (value) => {
-    await setTempThreshold(Number(value));
-    toast.success("Temperature threshold updated");
-    
-  };
+  const saveStage = async (value, options = {}) => {
+    const stage = Number(value);
+    if (Number.isNaN(stage) || stage < 0 || stage > 5) {
+      toast.error("Stage must be a number from 0 to 5");
+      return false;
+    }
 
-  const saveHum = async (value) => {
-    await setHumThreshold(Number(value));
-    toast.success("Humidity threshold updated");
-    
-  };
-
-  const saveFanCycle = async (value) => {
-    await setFanCycle(Number(value));
-    toast.success("Fan cycle time updated");
-    
+    try {
+      setStageSaving(true);
+      await setStage(stage);
+      if (!options.suppressToast) {
+        toast.success(stage === 0 ? "Switched to AUTO mode" : `Stage set to ${stage}`);
+      }
+      if (options.refresh !== false) {
+        await loadData();
+      }
+      return true;
+    } catch {
+      toast.error("Failed to set stage");
+      return false;
+    } finally {
+      setStageSaving(false);
+    }
   };
 
   if (loading || !data) return <Loader />;
 
-  const isAuto = displayData.mode === "AUTO";
+  const isAuto = effectiveMode === "AUTO";
+  const isStage = effectiveMode === "STAGE";
+  const modeIcon = isAuto ? "ti-robot" : isStage ? "ti-settings" : "ti-hand-click";
+  const modeLabel = isAuto ? "AUTO" : isStage ? "STAGE" : "MANUAL";
 
   return (
     <div className="dashboard">
@@ -172,18 +212,68 @@ function Dashboard({ onLogout }) {
             Control Mode
           </div>
 
-          <button
-            className={`mode-circle ${isAuto ? "auto" : "manual"}`}
-            onClick={handleMode}
-            disabled={true}
-            aria-label={`Switch to ${isAuto ? "manual" : "auto"} mode`}
-          >
-            <i className={`ti ${isAuto ? "ti-robot" : "ti-hand-click"}`} />
-            {isAuto ? "AUTO" : "MANUAL"}
-          </button>
+          <div className="mode-options" role="group" aria-label="Control mode selection">
+            <button
+              type="button"
+              className={`mode-button auto ${effectiveMode === "AUTO" ? "active" : ""}`}
+              onClick={() => handleModeChange("AUTO")}
+              disabled={actionDisabled || modeLoading}
+            >
+              <i className="ti ti-robot" aria-hidden="true" />
+              AUTO
+            </button>
+            <button
+              type="button"
+              className={`mode-button stage ${effectiveMode === "STAGE" ? "active" : ""}`}
+              onClick={() => handleModeChange("STAGE")}
+              disabled={actionDisabled || modeLoading || stageSaving}
+            >
+              <i className="ti ti-settings" aria-hidden="true" />
+              STAGE
+            </button>
+            <button
+              type="button"
+              className={`mode-button manual ${effectiveMode === "MANUAL" ? "active" : ""}`}
+              onClick={() => handleModeChange("MANUAL")}
+              disabled={actionDisabled || modeLoading}
+            >
+              <i className="ti ti-hand-click" aria-hidden="true" />
+              MANUAL
+            </button>
+          </div>
 
-          <p className="mode-hint" style={{ marginTop: 10 }}>
-            {isAuto ? "System is self-managing" : "Manual override active"}
+          {showStageDropdown && (
+            <div className="stage-control">
+              <label htmlFor="stage-input">Stage (0 = AUTO)</label>
+              <select
+                id="stage-input"
+                value={stageValue}
+                onChange={(e) => setStageValue(Number(e.target.value))}
+                disabled={actionDisabled || stageSaving}
+                aria-label="Stage number"
+              >
+                {[0, 1, 2, 3, 4, 5].map((stage) => (
+                  <option key={stage} value={stage}>
+                    {stage}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => saveStage(stageValue)}
+                disabled={actionDisabled || stageSaving}
+              >
+                {stageSaving ? "Saving..." : "Set Stage"}
+              </button>
+            </div>
+          )}
+
+          <p className="mode-hint">
+            {isAuto
+              ? "System is self-managing"
+              : isStage
+              ? `Stage mode active — current stage ${displayData.activeStage || "N/A"}`
+              : "Manual override active"}
           </p>
         </div>
       </div>
@@ -206,28 +296,6 @@ function Dashboard({ onLogout }) {
           status={displayData.heater}
           disabled={actionDisabled || isAuto}
           onToggle={() => handleToggle("heater", displayData.heater)}
-        />
-      </div>
-
-      <p className="section-label">Thresholds & Timers</p>
-      <div className="grid">
-        <ThresholdCard
-          title="Temperature Threshold"
-          value={displayData.tempThreshold}
-          onSave={saveTemp}
-          disabled={actionDisabled}
-        />
-        <ThresholdCard
-          title="Humidity Threshold"
-          value={displayData.humThreshold}
-          onSave={saveHum}
-          disabled={actionDisabled}
-        />
-        <ThresholdCard
-          title="Fan Cycle Time"
-          value={displayData.fanCycleTime}
-          onSave={saveFanCycle}
-          disabled={actionDisabled}
         />
       </div>
     </div>

@@ -647,10 +647,111 @@ body {
 .mode-circle i { font-size: 22px; }
 .mode-circle.auto   { background: var(--accent-primary); }
 .mode-circle.manual { background: var(--accent-heater); }
+.mode-circle.stage  { background: var(--accent-success); }
 
 .mode-circle:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 .mode-circle:not(:disabled):hover { transform: scale(1.06); box-shadow: 0 8px 24px rgba(37,99,235,0.3); }
 .mode-circle.manual:not(:disabled):hover { box-shadow: 0 8px 24px rgba(234,88,12,0.3); }
+.mode-circle.stage:not(:disabled):hover { box-shadow: 0 8px 24px rgba(16,185,129,0.25); }
+
+.mode-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.mode-button {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 100px;
+}
+
+.mode-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.mode-button.active {
+  color: #fff;
+}
+
+.mode-button.auto.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.mode-button.manual.active {
+  background: var(--accent-heater);
+  border-color: var(--accent-heater);
+}
+
+.mode-button.stage.active {
+  background: var(--accent-success);
+  border-color: var(--accent-success);
+}
+
+.mode-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.stage-control {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-control label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.stage-control input {
+  width: 90px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  outline: none;
+}
+
+.stage-control button {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent-primary);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.stage-control button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 .mode-hint { font-size: 0.73rem; color: var(--text-muted); }
 

@@ -25,6 +25,13 @@ export const setMode = async (mode) => {
   await API.post(`/device/${deviceId}/mode/${mode}`);
 };
 
+export const setStage = async (stage) => {
+  const deviceId = getDeviceId();
+  await API.post(`/device/${deviceId}/set-stage`, {
+    stage
+  });
+};
+
 export const setTempThreshold = async (value) => {
   const deviceId = getDeviceId();
   await API.post(`/device/${deviceId}/temp-threshold`, {
