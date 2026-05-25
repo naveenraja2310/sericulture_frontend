@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Header from "../components/Header";
 import StatusOverview from "../components/StatusOverview";
 import StatusCard from "../components/StatusCard";
@@ -6,26 +6,22 @@ import ToggleCard from "../components/ToggleCard";
 import Loader from "../components/Loader";
 
 import {
-  getStatus,
   toggleDevice,
   setMode,
   setStage,
   setTempThreshold,
   setHumThreshold,
   setFanCycle,
-  getDeviceId
 } from "../api/deviceApi";
 
 import toast from "react-hot-toast";
+import { DeviceDataContext } from "../contexts/DeviceDataContext";
 
 function Dashboard({ onLogout }) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading, refreshData } = useContext(DeviceDataContext);
   const [stageValue, setStageValue] = useState(1);
 
-  const isGprsConnected = data?.gprsStatus
-    ? /connect/i.test(data.gprsStatus)
-    : false;
+  const isGprsConnected = data?.gprsStatus ? /connect/i.test(data.gprsStatus) : false;
   const isPoweredOn = data?.powerOn === 1;
   const rawMode = data?.mode ? data.mode.toUpperCase() : "MANUAL";
   const actionEnabledBase = isGprsConnected && isPoweredOn;
@@ -45,7 +41,7 @@ function Dashboard({ onLogout }) {
         mode: rawMode,
         activeStage: data.activeStage,
         gprsStatus: data.gprsStatus,
-        powerOn: data.powerOn
+        powerOn: data.powerOn,
       }
     : null;
 
@@ -58,75 +54,14 @@ function Dashboard({ onLogout }) {
   const isStageMode = effectiveMode === "STAGE";
 
   useEffect(() => {
-    if (displayData?.activeStage) {
-      setStageValue(displayData.activeStage);
-    }
+    if (displayData?.activeStage) setStageValue(displayData.activeStage);
   }, [displayData?.activeStage]);
-
-  const loadData = async () => {
-    try {
-      const res = await getStatus();
-      setData(res);
-    } catch (err) {
-      toast.error("Failed to fetch device data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-
-    const apiBase = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.host}`;
-    const wsBase = apiBase.replace(/^http/, "ws");
-    const wsUrl = `${wsBase}/device/${getDeviceId()}/ws`;
-
-    let ws;
-    let reconnectTimer;
-
-    const connect = () => {
-      ws = new WebSocket(wsUrl);
-
-      ws.onopen = () => {};
-
-      ws.onmessage = (evt) => {
-        try {
-          const payload = JSON.parse(evt.data);
-          setData(payload);
-          setLoading(false);
-        } catch (e) {
-          console.error("Invalid WS message", e);
-        }
-      };
-
-      ws.onerror = (err) => {
-        console.error("WebSocket error", err);
-        try {
-          ws.close();
-        } catch (e) {}
-      };
-
-      ws.onclose = () => {
-        reconnectTimer = setTimeout(connect, 3000);
-      };
-    };
-
-    connect();
-
-    return () => {
-      if (reconnectTimer) clearTimeout(reconnectTimer);
-      try {
-        ws && ws.close();
-      } catch (e) {}
-    };
-  }, []);
 
   const handleToggle = async (device, currentStatus) => {
     try {
       const action = currentStatus ? "off" : "on";
       await toggleDevice(device, action);
       toast.success(`${device} turned ${action}`);
-      
     } catch {
       toast.error("Action failed");
     }
@@ -142,13 +77,11 @@ function Dashboard({ onLogout }) {
       setModeLoading(true);
       if (targetMode === "STAGE") {
         const success = await saveStage(stageValue, { suppressToast: true, refresh: false });
-        if (!success) {
-          return;
-        }
+        if (!success) return;
       } else {
         await setMode(targetMode.toLowerCase());
       }
-      await loadData();
+      await refreshData();
       toast.success(`Switched to ${targetMode} mode`);
     } catch {
       toast.error("Mode change failed");
@@ -170,9 +103,7 @@ function Dashboard({ onLogout }) {
       if (!options.suppressToast) {
         toast.success(stage === 0 ? "Switched to AUTO mode" : `Stage set to ${stage}`);
       }
-      if (options.refresh !== false) {
-        await loadData();
-      }
+      if (options.refresh !== false) await refreshData();
       return true;
     } catch {
       toast.error("Failed to set stage");
@@ -192,16 +123,12 @@ function Dashboard({ onLogout }) {
   return (
     <div className="dashboard">
       <Header onLogout={onLogout} />
-      <StatusOverview 
-        powerOn={displayData?.powerOn} 
-        gprsStatus={displayData?.gprsStatus} 
-        onRefresh={loadData}
-      />
+      <StatusOverview powerOn={displayData?.powerOn} gprsStatus={displayData?.gprsStatus} onRefresh={refreshData} />
 
       <p className="section-label">Sensor Readings</p>
       <div className="grid">
         <StatusCard title="Temperature" value={displayData.temperature.toFixed(1)} unit="°C" />
-        <StatusCard title="Humidity"    value={displayData.humidity.toFixed(2)} unit="%" />
+        <StatusCard title="Humidity" value={displayData.humidity.toFixed(2)} unit="%" />
       </div>
 
       <p className="section-label">Device Control</p>
@@ -213,30 +140,15 @@ function Dashboard({ onLogout }) {
           </div>
 
           <div className="mode-options" role="group" aria-label="Control mode selection">
-            <button
-              type="button"
-              className={`mode-button auto ${effectiveMode === "AUTO" ? "active" : ""}`}
-              onClick={() => handleModeChange("AUTO")}
-              disabled={actionDisabled || modeLoading}
-            >
+            <button type="button" className={`mode-button auto ${effectiveMode === "AUTO" ? "active" : ""}`} onClick={() => handleModeChange("AUTO")} disabled={actionDisabled || modeLoading}>
               <i className="ti ti-robot" aria-hidden="true" />
               AUTO
             </button>
-            <button
-              type="button"
-              className={`mode-button stage ${effectiveMode === "STAGE" ? "active" : ""}`}
-              onClick={() => handleModeChange("STAGE")}
-              disabled={actionDisabled || modeLoading || stageSaving}
-            >
+            <button type="button" className={`mode-button stage ${effectiveMode === "STAGE" ? "active" : ""}`} onClick={() => handleModeChange("STAGE")} disabled={actionDisabled || modeLoading || stageSaving}>
               <i className="ti ti-settings" aria-hidden="true" />
               STAGE
             </button>
-            <button
-              type="button"
-              className={`mode-button manual ${effectiveMode === "MANUAL" ? "active" : ""}`}
-              onClick={() => handleModeChange("MANUAL")}
-              disabled={actionDisabled || modeLoading}
-            >
+            <button type="button" className={`mode-button manual ${effectiveMode === "MANUAL" ? "active" : ""}`} onClick={() => handleModeChange("MANUAL")} disabled={actionDisabled || modeLoading}>
               <i className="ti ti-hand-click" aria-hidden="true" />
               MANUAL
             </button>
@@ -245,58 +157,29 @@ function Dashboard({ onLogout }) {
           {showStageDropdown && (
             <div className="stage-control">
               <label htmlFor="stage-input">Stage (0 = AUTO)</label>
-              <select
-                id="stage-input"
-                value={stageValue}
-                onChange={(e) => setStageValue(Number(e.target.value))}
-                disabled={actionDisabled || stageSaving}
-                aria-label="Stage number"
-              >
+              <select id="stage-input" value={stageValue} onChange={(e) => setStageValue(Number(e.target.value))} disabled={actionDisabled || stageSaving} aria-label="Stage number">
                 {[0, 1, 2, 3, 4, 5].map((stage) => (
                   <option key={stage} value={stage}>
                     {stage}
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                onClick={() => saveStage(stageValue)}
-                disabled={actionDisabled || stageSaving}
-              >
+              <button type="button" onClick={() => saveStage(stageValue)} disabled={actionDisabled || stageSaving}>
                 {stageSaving ? "Saving..." : "Set Stage"}
               </button>
             </div>
           )}
 
           <p className="mode-hint">
-            {isAuto
-              ? "System is self-managing"
-              : isStage
-              ? `Stage mode active — current stage ${displayData.activeStage || "N/A"}`
-              : "Manual override active"}
+            {isAuto ? "System is self-managing" : isStage ? `Stage mode active — current stage ${displayData.activeStage || "N/A"}` : "Manual override active"}
           </p>
         </div>
       </div>
 
       <div className="grid">
-        <ToggleCard
-          title="Motor"
-          status={displayData.motor}
-          disabled={actionDisabled || isAuto}
-          onToggle={() => handleToggle("motor", displayData.motor)}
-        />
-        <ToggleCard
-          title="Fan"
-          status={displayData.fan}
-          disabled={actionDisabled || isAuto}
-          onToggle={() => handleToggle("fan", displayData.fan)}
-        />
-        <ToggleCard
-          title="Heater"
-          status={displayData.heater}
-          disabled={actionDisabled || isAuto}
-          onToggle={() => handleToggle("heater", displayData.heater)}
-        />
+        <ToggleCard title="Motor" status={displayData.motor} disabled={actionDisabled || isAuto} onToggle={() => handleToggle("motor", displayData.motor)} />
+        <ToggleCard title="Fan" status={displayData.fan} disabled={actionDisabled || isAuto} onToggle={() => handleToggle("fan", displayData.fan)} />
+        <ToggleCard title="Heater" status={displayData.heater} disabled={actionDisabled || isAuto} onToggle={() => handleToggle("heater", displayData.heater)} />
       </div>
     </div>
   );

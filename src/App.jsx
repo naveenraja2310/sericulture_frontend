@@ -8,6 +8,7 @@ import ThresholdTimer from "./pages/ThresholdTimer";
 import SetStage from "./pages/SetStage";
 import ContactUs from "./pages/ContactUs";
 import FooterNav from "./components/FooterNav";
+import { DeviceDataProvider } from "./contexts/DeviceDataContext";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
@@ -27,7 +28,7 @@ function App() {
       {!loggedIn ? (
         <Login setLoggedIn={setLoggedIn} />
       ) : (
-        <>
+        <DeviceDataProvider>
           <Routes>
             <Route path="/" element={<Dashboard onLogout={handleLogout} />} />
             <Route path="/threshold" element={<ThresholdTimer />} />
@@ -36,7 +37,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
           <FooterNav />
-        </>
+        </DeviceDataProvider>
       )}
     </>
   );

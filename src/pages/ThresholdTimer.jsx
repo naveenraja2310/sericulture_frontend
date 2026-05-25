@@ -1,25 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import toast from "react-hot-toast";
-import { getStatus, setTempThreshold, setHumThreshold, setFanCycle } from "../api/deviceApi";
+import { setTempThreshold, setHumThreshold, setFanCycle } from "../api/deviceApi";
+import { DeviceDataContext } from "../contexts/DeviceDataContext";
 import ThresholdCard from "../components/ThresholdCard";
 
 const ThresholdTimer = () => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useContext(DeviceDataContext);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const res = await getStatus();
-        setData(res);
-      } catch (err) {
-        toast.error("Failed to fetch device data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  console.log("thershold", data)
 
   const isGprsConnected = data?.gprsStatus ? /connect/i.test(data.gprsStatus) : false;
   const isPoweredOn = data?.powerOn === 1;

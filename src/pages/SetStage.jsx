@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { getDeviceId } from "../api/deviceApi";
 import axios from "axios";
+import { DeviceDataContext } from "../contexts/DeviceDataContext";
 
 const defaultStages = [
   { tempSetpoint: 28, humSetpoint: 90, durationHours: 144 },
@@ -11,9 +12,22 @@ const defaultStages = [
 ];
 
 const SetStage = () => {
-  const [stages, setStages] = useState(defaultStages);
+  const { data } = useContext(DeviceDataContext);
+  const [stages, setStages] = useState(() =>
+    data?.stages?.length > 0 ? data.stages : defaultStages
+  );
+  const [stagesInitialized, setStagesInitialized] = useState(
+    () => !!data?.stages?.length
+  );
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!stagesInitialized && data?.stages?.length > 0) {
+      setStages(data.stages);
+      setStagesInitialized(true);
+    }
+  }, [data?.stages, stagesInitialized]);
 
   const handleChange = (idx, field, value) => {
     const updated = stages.map((s, i) =>
@@ -40,6 +54,7 @@ const SetStage = () => {
   return (
     <div style={{ paddingBottom: 80 }}>
       <h2>Set Stage Settings</h2>
+      <div>Current active stage: {data?.activeStage ?? "N/A"}</div>
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
         {stages.map((stage, idx) => (
           <div key={idx} style={{ border: "1px solid #ccc", borderRadius: 8, padding: 16, minWidth: 200 }}>
