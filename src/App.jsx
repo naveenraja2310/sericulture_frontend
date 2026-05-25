@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import Login from "./components/Login";
+import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard";
+import Users from "./pages/Users";
+import Devices from "./pages/Devices";
 import { Toaster } from "react-hot-toast";
-import { clearAuthData, isLoggedIn } from "./utils/auth";
+import { clearAuthData, isLoggedIn, getStoredIsAdmin } from "./utils/auth";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ThresholdTimer from "./pages/ThresholdTimer";
 import SetStage from "./pages/SetStage";
@@ -12,14 +15,21 @@ import { DeviceDataProvider } from "./contexts/DeviceDataContext";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const [isAdmin, setIsAdmin] = useState(getStoredIsAdmin());
 
   useEffect(() => {
     setLoggedIn(isLoggedIn());
+    setIsAdmin(isLoggedIn() && getStoredIsAdmin());
   }, []);
+
+  useEffect(() => {
+    setIsAdmin(loggedIn && getStoredIsAdmin());
+  }, [loggedIn]);
 
   const handleLogout = () => {
     clearAuthData();
     setLoggedIn(false);
+    setIsAdmin(false);
   };
 
   return (
@@ -29,14 +39,25 @@ function App() {
         <Login setLoggedIn={setLoggedIn} />
       ) : (
         <DeviceDataProvider>
+          <Header onLogout={handleLogout} />
           <Routes>
-            <Route path="/" element={<Dashboard onLogout={handleLogout} />} />
-            <Route path="/threshold" element={<ThresholdTimer />} />
-            <Route path="/setstage" element={<SetStage />} />
-            <Route path="/contactus" element={<ContactUs />} />
-            <Route path="*" element={<Navigate to="/" />} />
+            {isAdmin ? (
+              <>
+                <Route path="/users" element={<Users />} />
+                <Route path="/devices" element={<Devices />} />
+                <Route path="/" element={<Navigate to="/users" replace />} />
+              </>
+            ) : (
+              <>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/threshold" element={<ThresholdTimer />} />
+                <Route path="/setstage" element={<SetStage />} />
+                <Route path="/contactus" element={<ContactUs />} />
+              </>
+            )}
+            <Route path="*" element={<Navigate to={isAdmin ? "/users" : "/"} replace />} />
           </Routes>
-          <FooterNav />
+          <FooterNav isAdmin={isAdmin} />
         </DeviceDataProvider>
       )}
     </>

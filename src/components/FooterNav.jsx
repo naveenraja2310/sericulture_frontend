@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const FooterNav = () => (
+const FooterNav = ({ isAdmin }) => (
   <nav style={{
     position: "fixed",
     left: 0,
@@ -14,18 +14,31 @@ const FooterNav = () => (
     padding: "8px 0",
     zIndex: 1000
   }}>
-    <NavLink to="/" end style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-      Dashboard
-    </NavLink>
-    <NavLink to="/threshold" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-      Threshold & Timer
-    </NavLink>
-    <NavLink to="/setstage" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-      Set Stage
-    </NavLink>
-    <NavLink to="/contactus" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-      Contact Us
-    </NavLink>
+    {isAdmin ? (
+      <>
+        <NavLink to="/users" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
+          Users
+        </NavLink>
+        <NavLink to="/devices" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
+          Devices
+        </NavLink>
+      </>
+    ) : (
+      <>
+        <NavLink to="/" end style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
+          Dashboard
+        </NavLink>
+        <NavLink to="/threshold" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
+          Threshold & Timer
+        </NavLink>
+        <NavLink to="/setstage" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
+          Set Stage
+        </NavLink>
+        <NavLink to="/contactus" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
+          Contact Us
+        </NavLink>
+      </>
+    )}
   </nav>
 );
 

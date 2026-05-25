@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import Header from "../components/Header";
 import StatusOverview from "../components/StatusOverview";
 import StatusCard from "../components/StatusCard";
 import ToggleCard from "../components/ToggleCard";
@@ -17,7 +16,7 @@ import {
 import toast from "react-hot-toast";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
 
-function Dashboard({ onLogout }) {
+function Dashboard() {
   const { data, loading, refreshData } = useContext(DeviceDataContext);
   const [stageValue, setStageValue] = useState(1);
 
@@ -122,7 +121,7 @@ function Dashboard({ onLogout }) {
 
   return (
     <div className="dashboard">
-      <Header onLogout={onLogout} />
+
       <StatusOverview powerOn={displayData?.powerOn} gprsStatus={displayData?.gprsStatus} onRefresh={refreshData} />
 
       <p className="section-label">Sensor Readings</p>
