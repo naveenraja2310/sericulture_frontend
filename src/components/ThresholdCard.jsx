@@ -14,6 +14,7 @@ const THRESHOLD_UNITS = {
 
 function ThresholdCard({ title, value, onSave, disabled }) {
   const [input, setInput] = useState(value);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setInput(value);
@@ -21,6 +22,15 @@ function ThresholdCard({ title, value, onSave, disabled }) {
 
   const icon = THRESHOLD_ICONS[title] || "ti-adjustments";
   const unit = THRESHOLD_UNITS[title] || "";
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await onSave(input);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="card">
@@ -34,17 +44,21 @@ function ThresholdCard({ title, value, onSave, disabled }) {
           type="number"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          disabled={disabled}
+          disabled={disabled || saving}
           placeholder={`Enter value${unit ? ` (${unit})` : ""}`}
           aria-label={`${title} value`}
         />
         <button
-          onClick={() => onSave(input)}
-          disabled={disabled}
+          onClick={handleSave}
+          disabled={disabled || saving}
           aria-label={`Save ${title}`}
         >
-          <i className="ti ti-device-floppy" style={{ fontSize: 15 }} aria-hidden="true" />
-          Set
+          <i
+            className={`ti ${saving ? "ti-loader-2" : "ti-device-floppy"}`}
+            style={{ fontSize: 15, ...(saving && { animation: "spin 0.9s linear infinite" }) }}
+            aria-hidden="true"
+          />
+          {saving ? "Saving…" : "Set"}
         </button>
       </div>
     </div>

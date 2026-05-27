@@ -38,23 +38,26 @@ const ThresholdTimer = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div>
+    <div className="dashboard" style={{ paddingTop: 0 }}>
       <p className="section-label">Thresholds & Timers</p>
       <div className="grid">
         <ThresholdCard
           title="Temperature Threshold"
+          icon="ti-temperature"
           value={displayData.tempThreshold}
           onSave={saveTemp}
           disabled={actionDisabled}
         />
         <ThresholdCard
           title="Humidity Threshold"
+          icon="ti-droplet"
           value={displayData.humThreshold}
           onSave={saveHum}
           disabled={actionDisabled}
         />
         <ThresholdCard
           title="Fan Cycle Time"
+          icon="ti-clock"
           value={displayData.fanCycleTime}
           onSave={saveFanCycle}
           disabled={actionDisabled}
