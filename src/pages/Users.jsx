@@ -62,7 +62,7 @@ const Users = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete user?')) return;
+    if (!window.confirm("Delete user?")) return;
     try {
       await deleteUser(id);
       fetch();
@@ -71,91 +71,198 @@ const Users = () => {
     }
   };
 
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Users</h2>
-      <button onClick={openModal} style={{ marginBottom: 16 }}>Add User</button>
+    <div className="users-page">
 
+      {/* ── Header ── */}
+      <div className="users-header">
+        <div>
+          <p className="section-label" style={{ margin: 0 }}>Admin</p>
+          <h2 className="users-title">
+            <i className="ti ti-users" aria-hidden="true" />
+            Users
+          </h2>
+        </div>
+        <button className="users-add-btn" onClick={openModal}>
+          <i className="ti ti-plus" aria-hidden="true" />
+          Add User
+        </button>
+      </div>
+
+      {/* ── Table card ── */}
       {loading ? (
-        <div>Loading...</div>
+        <div className="loader-container" style={{ height: 200 }}>
+          <div className="loader" />
+          <p className="loader-text">Loading users…</p>
+        </div>
       ) : (
-        <>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Username</th>
-                <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Password</th>
-                <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Device ID</th>
-                <th style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.id}>
-                  <td style={{ padding: '8px 4px' }}>{u.username}</td>
-                  <td style={{ padding: '8px 4px' }}>{u.password}</td>
-                  <td style={{ padding: '8px 4px' }}>{u.deviceId}</td>                  
-                  <td style={{ padding: '8px 4px' }}>
-                    <button onClick={() => handleEdit(u)}>Edit</button>
-                    <button onClick={() => handleDelete(u.id)} style={{ marginLeft: 8 }}>Delete</button>
-                  </td>
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+          <div className="users-table-wrap">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th><i className="ti ti-user" aria-hidden="true" /> Username</th>
+                  {/* <th><i className="ti ti-lock" aria-hidden="true" /> Password</th> */}
+                  <th><i className="ti ti-cpu" aria-hidden="true" /> Device ID</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div style={{ marginTop: 12 }}>
-            <button disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>Prev</button>
-            <span style={{ margin: '0 8px' }}>Page {page} / {Math.max(1, Math.ceil(total / limit))}</span>
-            <button disabled={page >= Math.ceil(total / limit)} onClick={() => setPage(p => p + 1)}>Next</button>
+              </thead>
+              <tbody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="users-empty">
+                      <i className="ti ti-users-off" aria-hidden="true" />
+                      No users found
+                    </td>
+                  </tr>
+                ) : users.map(u => (
+                  <tr key={u.id}>
+                    <td>
+                      <div className="users-avatar-row">
+                        <div className="users-avatar">
+                          {(u.username?.[0] || "U").toUpperCase()}
+                        </div>
+                        {u.username}
+                      </div>
+                    </td>
+                    {/* <td>
+                      <span className="users-password-mask">••••••••</span>
+                    </td> */}
+                    <td>
+                      <span className="users-device-id">
+                        <i className="ti ti-hash" aria-hidden="true" />
+                        {u.deviceId || <span style={{ color: "var(--text-muted)" }}>—</span>}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="users-actions">
+                        <button className="users-btn-edit" onClick={() => handleEdit(u)} aria-label="Edit user">
+                          <i className="ti ti-edit" aria-hidden="true" />
+                          Edit
+                        </button>
+                        <button className="users-btn-delete" onClick={() => handleDelete(u.id)} aria-label="Delete user">
+                          <i className="ti ti-trash" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </>
+
+          {/* ── Pagination ── */}
+          <div className="users-pagination">
+            <span className="users-count">
+              {total} user{total !== 1 ? "s" : ""} total
+            </span>
+            <div className="users-page-controls">
+              <button
+                className="users-page-btn"
+                disabled={page <= 1}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                aria-label="Previous page"
+              >
+                <i className="ti ti-chevron-left" aria-hidden="true" />
+              </button>
+              <span className="users-page-label">
+                Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+              </span>
+              <button
+                className="users-page-btn"
+                disabled={page >= totalPages}
+                onClick={() => setPage(p => p + 1)}
+                aria-label="Next page"
+              >
+                <i className="ti ti-chevron-right" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
+      {/* ── Modal ── */}
       {modalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 10, width: '100%', maxWidth: 420, padding: 24, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
-            <h3 style={{ marginTop: 0 }}>{editingId ? 'Update User' : 'Add User'}</h3>
-            <form onSubmit={handleSubmit}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <label>
-                  Username
-                  <input
-                    style={{ width: '100%', padding: 8, marginTop: 4 }}
-                    placeholder="Enter username"
-                    value={form.username}
-                    onChange={e => setForm({ ...form, username: e.target.value })}
-                    required
-                  />
-                </label>
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
 
-                <label>
-                  Password
-                  <input
-                    style={{ width: '100%', padding: 8, marginTop: 4 }}
-                    placeholder="Enter password"
-                    value={form.password}
-                    onChange={e => setForm({ ...form, password: e.target.value })}
-                    required
-                  />
-                </label>
-
-                <label>
-                  Device ID
-                  <input
-                    style={{ width: '100%', padding: 8, marginTop: 4 }}
-                    placeholder="Enter device ID"
-                    value={form.deviceId}
-                    onChange={e => setForm({ ...form, deviceId: e.target.value })}
-                  />
-                </label>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
-                  <button type="button" onClick={closeModal}>Cancel</button>
-                  <button type="submit" style={{ padding: '8px 16px' }}>{editingId ? 'Update' : 'Create'}</button>
+            <div className="modal-header">
+              <div className="modal-title">
+                <div className="modal-icon">
+                  <i className={`ti ${editingId ? "ti-edit" : "ti-user-plus"}`} aria-hidden="true" />
+                </div>
+                <div>
+                  <h3>{editingId ? "Update User" : "Add User"}</h3>
+                  <p>{editingId ? "Edit user details below" : "Fill in the details to create a new user"}</p>
                 </div>
               </div>
+              <button className="modal-close" onClick={closeModal} aria-label="Close modal">
+                <i className="ti ti-x" aria-hidden="true" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+
+                <div className="modal-field">
+                  <label htmlFor="u-username">Username</label>
+                  <div className="modal-input-wrap">
+                    <i className="ti ti-user" aria-hidden="true" />
+                    <input
+                      id="u-username"
+                      type="text"
+                      placeholder="Enter username"
+                      value={form.username}
+                      onChange={e => setForm({ ...form, username: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-field">
+                  <label htmlFor="u-password">Password</label>
+                  <div className="modal-input-wrap">
+                    <i className="ti ti-lock" aria-hidden="true" />
+                    <input
+                      id="u-password"
+                      type="text"
+                      placeholder="Enter password"
+                      value={form.password}
+                      onChange={e => setForm({ ...form, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-field">
+                  <label htmlFor="u-device">Device ID <span className="modal-optional">optional</span></label>
+                  <div className="modal-input-wrap">
+                    <i className="ti ti-cpu" aria-hidden="true" />
+                    <input
+                      id="u-device"
+                      type="text"
+                      placeholder="Enter device ID"
+                      value={form.deviceId}
+                      onChange={e => setForm({ ...form, deviceId: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="modal-btn-cancel" onClick={closeModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="modal-btn-submit">
+                  <i className={`ti ${editingId ? "ti-check" : "ti-user-plus"}`} aria-hidden="true" />
+                  {editingId ? "Update User" : "Create User"}
+                </button>
+              </div>
             </form>
+
           </div>
         </div>
       )}
