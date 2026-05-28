@@ -43,56 +43,113 @@ const SetStage = () => {
       const deviceId = getDeviceId();
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
       await axios.post(`${baseUrl}/device/${deviceId}/stage-settings`, stages);
-      setMessage("Stage settings updated!");
-    } catch (e) {
-      setMessage("Failed to update stage settings");
+      setMessage("success");
+    } catch {
+      setMessage("error");
     } finally {
       setSaving(false);
     }
   };
 
+  const activeStage = data?.activeStage;
+
   return (
-    <div style={{ paddingBottom: 80 }}>
-      <h2>Set Stage Settings</h2>
-      <div>Current active stage: {data?.activeStage ?? "N/A"}</div>
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-        {stages.map((stage, idx) => (
-          <div key={idx} style={{ border: "1px solid #ccc", borderRadius: 8, padding: 16, minWidth: 200 }}>
-            <h4>Stage {idx + 1}</h4>
-            <div>
-              <label>Temp Setpoint: </label>
-              <input
-                type="number"
-                value={stage.tempSetpoint}
-                onChange={e => handleChange(idx, "tempSetpoint", parseFloat(e.target.value))}
-                step="0.1"
-              />
+    <div className="dashboard" style={{ paddingBottom: 80, paddingTop: 0 }}>
+      <p className="section-label">Stage Settings</p>
+
+      {activeStage != null && (
+        <div className="active-stage-bar">
+          <i className="ti ti-player-play" aria-hidden="true" />
+          Active stage: <strong>Stage {activeStage}</strong>
+        </div>
+      )}
+
+      <div className="stages-grid">
+        {stages.map((stage, idx) => {
+          const isActive = idx + 1 === activeStage;
+          return (
+            <div key={idx} className={`stage-card${isActive ? " stage-card--active" : ""}`}>
+              <span className={`stage-badge ${isActive ? "stage-badge--active" : "stage-badge--num"}`}>
+                {isActive ? "Active" : `Stage ${idx + 1}`}
+              </span>
+
+              <div className="stage-card-title">
+                <i className="ti ti-settings" aria-hidden="true" />
+                Stage {idx + 1}
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-temperature" aria-hidden="true" />
+                  Temp setpoint
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.tempSetpoint}
+                    step="0.1"
+                    onChange={e => handleChange(idx, "tempSetpoint", parseFloat(e.target.value))}
+                  />
+                  <span className="stage-field-unit">°C</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-droplet" aria-hidden="true" />
+                  Hum setpoint
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.humSetpoint}
+                    step="0.1"
+                    onChange={e => handleChange(idx, "humSetpoint", parseFloat(e.target.value))}
+                  />
+                  <span className="stage-field-unit">%</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Duration
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.durationHours}
+                    step="1"
+                    onChange={e => handleChange(idx, "durationHours", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">hrs</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <label>Hum Setpoint: </label>
-              <input
-                type="number"
-                value={stage.humSetpoint}
-                onChange={e => handleChange(idx, "humSetpoint", parseFloat(e.target.value))}
-                step="0.1"
-              />
-            </div>
-            <div>
-              <label>Duration (hrs): </label>
-              <input
-                type="number"
-                value={stage.durationHours}
-                onChange={e => handleChange(idx, "durationHours", parseInt(e.target.value))}
-                step="1"
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <button onClick={handleSave} disabled={saving} style={{ marginTop: 24 }}>
-        {saving ? "Saving..." : "Save"}
-      </button>
-      {message && <div style={{ marginTop: 12 }}>{message}</div>}
+
+      <div className="stage-save-row">
+        <p className="stage-save-hint">
+          <i className="ti ti-info-circle" aria-hidden="true" />
+          Changes apply on next stage transition
+        </p>
+        <button className="stage-save-btn" onClick={handleSave} disabled={saving}>
+          <i className={`ti ${saving ? "ti-loader-2" : "ti-device-floppy"}`}
+            style={saving ? { animation: "spin 0.9s linear infinite" } : {}}
+            aria-hidden="true"
+          />
+          {saving ? "Saving…" : "Save All Stages"}
+        </button>
+      </div>
+
+      {message && (
+        <div className={`stage-message ${message === "success" ? "stage-message--success" : "stage-message--error"}`}>
+          <i className={`ti ${message === "success" ? "ti-circle-check" : "ti-alert-circle"}`} aria-hidden="true" />
+          {message === "success" ? "Stage settings updated!" : "Failed to update stage settings"}
+        </div>
+      )}
     </div>
   );
 };

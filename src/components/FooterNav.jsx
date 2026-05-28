@@ -1,45 +1,31 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const FooterNav = ({ isAdmin }) => (
-  <nav style={{
-    position: "fixed",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: "#fff",
-    borderTop: "1px solid #eee",
-    display: "flex",
-    justifyContent: "space-around",
-    padding: "8px 0",
-    zIndex: 1000
-  }}>
-    {isAdmin ? (
-      <>
-        <NavLink to="/users" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-          Users
+const userLinks = [
+  { to: "/",           end: true,  icon: "ti-layout-dashboard", label: "Dashboard"   },
+  { to: "/threshold",  end: false, icon: "ti-adjustments",      label: "Thresholds"  },
+  { to: "/setstage",   end: false, icon: "ti-settings",         label: "Set Stage"   },
+  { to: "/contactus",  end: false, icon: "ti-headset",          label: "Contact"     },
+];
+
+const adminLinks = [
+  { to: "/users",   end: false, icon: "ti-users",  label: "Users"   },
+  { to: "/devices", end: false, icon: "ti-cpu",    label: "Devices" },
+];
+
+const FooterNav = ({ isAdmin }) => {
+  const links = isAdmin ? adminLinks : userLinks;
+
+  return (
+    <nav className="footer-nav">
+      {links.map(({ to, end, icon, label }) => (
+        <NavLink key={to} to={to} end={end} className={({ isActive }) => `footer-nav-item${isActive ? " active" : ""}`}>
+          <i className={`ti ${icon}`} aria-hidden="true" />
+          <span>{label}</span>
         </NavLink>
-        <NavLink to="/devices" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-          Devices
-        </NavLink>
-      </>
-    ) : (
-      <>
-        <NavLink to="/" end style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/threshold" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-          Threshold & Timer
-        </NavLink>
-        <NavLink to="/setstage" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-          Set Stage
-        </NavLink>
-        <NavLink to="/contactus" style={({ isActive }) => ({ color: isActive ? "#1976d2" : "#444", textDecoration: "none" })}>
-          Contact Us
-        </NavLink>
-      </>
-    )}
-  </nav>
-);
+      ))}
+    </nav>
+  );
+};
 
 export default FooterNav;
