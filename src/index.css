@@ -1005,7 +1005,7 @@ body {
 
 .stages-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
   margin-bottom: 24px;
 }
@@ -1199,6 +1199,109 @@ body {
   margin-top: 2px;
 }
 
+/* ─────────────── DEVICES MODAL ─────────────── */
+.dv-modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 48px rgba(15,23,42,0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+.dv-body {
+  padding: 20px 22px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dv-section-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 18px 0 10px;
+}
+.dv-section-label:first-child { margin-top: 0; }
+
+/* ── Sensor stats ── */
+.dv-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.dv-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+.dv-stat > i { font-size: 20px; color: var(--accent-primary); flex-shrink: 0; }
+.dv-stat > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dv-stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+.dv-stat-value { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+.dv-stat-value small { font-size: 0.72rem; font-weight: 400; color: var(--text-muted); margin-left: 1px; }
+.dv-stat-value.dv-on  { color: var(--accent-success); }
+.dv-stat-value.dv-off { color: var(--accent-danger); }
+
+/* ── Device toggle cards ── */
+.dv-toggle-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dv-toggle-card {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: var(--transition);
+}
+.dv-toggle-card > i { font-size: 20px; color: var(--text-muted); transition: var(--transition); }
+.dv-toggle-card--on { border-color: #bbf7d0; background: #f0fdf4; }
+.dv-toggle-card--on > i { color: var(--accent-success); }
+
+/* ── Threshold grid inside modal ── */
+.dv-threshold-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.dv-threshold-grid .threshold-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.dv-threshold-grid .threshold-box input { flex: 1; min-width: 0; }
+
+@media (max-width: 600px) {
+  .dv-modal { max-height: 95vh; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .dv-stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
 /* ─────────────── USERS PAGE ─────────────── */
 .users-page {
   padding: 24px 20px 100px;
@@ -1261,7 +1364,7 @@ body {
 }
 
 .users-table th {
-  padding: 13px 18px;
+  padding: 13px 13px;
   text-align: left;
   font-size: 0.68rem;
   font-weight: 700;

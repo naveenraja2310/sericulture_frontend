@@ -140,7 +140,6 @@ const Users = () => {
                       <div className="users-actions">
                         <button className="users-btn-edit" onClick={() => handleEdit(u)} aria-label="Edit user">
                           <i className="ti ti-edit" aria-hidden="true" />
-                          Edit
                         </button>
                         <button className="users-btn-delete" onClick={() => handleDelete(u.id)} aria-label="Delete user">
                           <i className="ti ti-trash" aria-hidden="true" />
