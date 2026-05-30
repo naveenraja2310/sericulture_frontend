@@ -1220,12 +1220,12 @@ body {
 }
 
 .dv-section-label {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.11em;
   color: var(--text-muted);
   font-weight: 700;
-  margin: 18px 0 10px;
+  margin: 22px 0 10px;
 }
 .dv-section-label:first-child { margin-top: 0; }
 

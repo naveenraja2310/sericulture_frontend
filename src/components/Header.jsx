@@ -1,5 +1,5 @@
 function Header({ onLogout }) {
-  const deviceId = localStorage.getItem("deviceId") || "YADH-B4ACF589";
+  const deviceId = localStorage.getItem("deviceId");
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const handleLogout = () => {
@@ -20,7 +20,7 @@ function Header({ onLogout }) {
         </div>
         <div>
           <h2>Sericulture Dashboard</h2>
-          <p>{deviceId} {isAdmin ? "(Admin)" : ""}</p>
+          <p>{deviceId} {isAdmin ? "Admin" : ""}</p>
         </div>
       </div>
 

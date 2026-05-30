@@ -96,6 +96,7 @@ const Devices = () => {
                 <tr>
                   <th><i className="ti ti-hash" aria-hidden="true" /> Device ID</th>
                   <th><i className="ti ti-user" aria-hidden="true" /> User</th>
+                  {/* <th>Sensor</th> */}
                   {/* <th><i className="ti ti-wifi" aria-hidden="true" /> Status</th> */}
                   <th>Actions</th>
                 </tr>
@@ -124,6 +125,12 @@ const Devices = () => {
                         {t.username || t.userDetails?.username || "—"}
                       </div>
                     </td>
+                    {/* <td>
+                      <span className={`gprs-badge ${t.sensorFailure ? "disconnected" : "connected"}`}>
+                        <i className={`ti ${t.sensorFailure ? "ti-alert-circle" : "ti-shield-check"}`} aria-hidden="true" />
+                        {t.sensorFailure != null ? String(t.sensorFailure) : "—"}
+                      </span>
+                    </td> */}
                     {/* <td>
                       <span className={`gprs-badge ${isConnected(t) ? "connected" : "disconnected"}`}>
                         <i className={`ti ${isConnected(t) ? "ti-wifi" : "ti-wifi-off"}`} aria-hidden="true" />
@@ -195,6 +202,15 @@ const Devices = () => {
                   <div>
                     <span className="dv-stat-label">Humidity</span>
                     <span className="dv-stat-value">{selected.humidity != null ? selected.humidity.toFixed(2) : "—"} <small>%</small></span>
+                  </div>
+                </div>
+                <div className="dv-stat">
+                  <i className={`ti ${selected.sensorFailure ? "ti-alert-circle" : "ti-shield-check"}`} aria-hidden="true" />
+                  <div>
+                    <span className="dv-stat-label">Sensor Failure</span>
+                    <span className={`dv-stat-value ${selected.sensorFailure ? "dv-off" : "dv-on"}`}>
+                      {selected.sensorFailure != null ? String(selected.sensorFailure) : "—"}
+                    </span>
                   </div>
                 </div>
                 <div className="dv-stat">

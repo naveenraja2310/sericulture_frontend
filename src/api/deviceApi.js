@@ -5,9 +5,7 @@ const API = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL
 });
 
-const defaultDeviceId = "YADH-B4ACF589";
-
-export const getDeviceId = () => getStoredDeviceId() || defaultDeviceId;
+export const getDeviceId = () => getStoredDeviceId() 
 
 export const getStatus = async (deviceId) => {
   const id = deviceId || getDeviceId();
