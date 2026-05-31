@@ -205,14 +205,25 @@ const Devices = () => {
                   </div>
                 </div>
                 <div className="dv-stat">
-                  <i className={`ti ${selected.sensorFailure ? "ti-alert-circle" : "ti-shield-check"}`} aria-hidden="true" />
+                  <i
+                    className={`ti ${selected.sensorFailure ? "ti-alert-circle" : "ti-shield-check"}`}
+                    aria-hidden="true"
+                  />
                   <div>
-                    <span className="dv-stat-label">Sensor Failure</span>
-                    <span className={`dv-stat-value ${selected.sensorFailure ? "dv-off" : "dv-on"}`}>
-                      {selected.sensorFailure != null ? String(selected.sensorFailure) : "—"}
+                    <span className="dv-stat-label">Sensor Status</span>
+                    <span
+                      className={`dv-stat-value ${selected.sensorFailure ? "dv-off" : "dv-on"}`}
+                      style={{ color: selected.sensorFailure ? "red" : "green" }}
+                    >
+                      {selected.sensorFailure === null
+                        ? "—"
+                        : selected.sensorFailure
+                        ? "Inactive"
+                        : "Active"}
                     </span>
                   </div>
                 </div>
+
                 <div className="dv-stat">
                   <i className={`ti ${selected.powerOn === 1 ? "ti-plug" : "ti-plug-off"}`} aria-hidden="true" />
                   <div>
@@ -261,9 +272,9 @@ const Devices = () => {
               <p className="dv-section-label">Control Mode</p>
               <div className="mode-options" style={{ justifyContent: "flex-start", marginBottom: 0 }}>
                 {[
-                  { mode: "stage",  icon: "ti-settings",   label: "STAGE",  isActive: selected.activeStage >= 1, action: () => saveStage(stageValue) },
-                  { mode: "auto",   icon: "ti-robot",      label: "AUTO",   isActive: selected.mode === "auto" && !(selected.activeStage >= 1), action: () => doAction(setMode, "auto") },
-                  { mode: "manual", icon: "ti-hand-click", label: "MANUAL", isActive: selected.mode === "manual" && !(selected.activeStage >= 1), action: () => doAction(setMode, "manual") },
+                  { mode: "stage",  icon: "ti-settings",   label: "STAGE",  isActive: selected?.activeStage >= 1, action: () => saveStage(stageValue) },
+                  { mode: "auto",   icon: "ti-robot",      label: "AUTO",   isActive: selected?.mode?.toLowerCase() === "auto" && !(selected?.activeStage >= 1), action: () => doAction(setMode, "auto") },
+                  { mode: "manual", icon: "ti-hand-click", label: "MANUAL", isActive: selected?.mode?.toLowerCase() === "manual" && !(selected?.activeStage >= 1), action: () => doAction(setMode, "manual") },
                 ].map(({ mode, icon, label, isActive, action }) => (
                   <button
                     key={mode}
@@ -273,11 +284,14 @@ const Devices = () => {
                   >
                     <i className={`ti ${icon}`} aria-hidden="true" />
                     {label}
+                    {mode === "stage" && selected?.activeStage >= 1 && (
+                      <span className="stage-indicator">({selected.activeStage})</span>
+                    )}
                   </button>
                 ))}
               </div>
 
-              {selected.activeStage >= 1 && (
+              {selected?.activeStage >= 1 && (
                 <div className="stage-control" style={{ marginTop: 14 }}>
                   <label htmlFor="dv-stage-select">Active Stage</label>
                   <select
