@@ -33,6 +33,16 @@
       const app = initializeApp(firebaseConfig);
       const messaging = getMessaging(app);
 
+        console.log("Firebase app initialized", app);
+        console.log("Messaging instance:", messaging);
+
+        // Log service worker registration status for firebase-messaging-sw.js
+        if (navigator.serviceWorker) {
+          navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js').then(reg => {
+            console.log('firebase-messaging-sw.js registration:', reg);
+          }).catch(err => console.error('Error getting SW registration', err));
+        }
+
       let swRegistration = null;
 
       // Register Firebase Service Worker

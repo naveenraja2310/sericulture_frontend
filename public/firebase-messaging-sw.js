@@ -16,6 +16,14 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+self.addEventListener('install', (event) => {
+  console.log('firebase-messaging-sw installed');
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('firebase-messaging-sw activated');
+});
+
 messaging.onBackgroundMessage((payload) => {
 
   console.log("Background Message:", payload);
