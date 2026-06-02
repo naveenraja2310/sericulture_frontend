@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { login } from "../api/authApi";
 import { saveAuthData } from "../utils/auth";
+import { updateUser } from "../api/userApi";
 
 function Login({ setLoggedIn }) {
   const [username, setUsername] = useState("");
@@ -20,13 +21,28 @@ function Login({ setLoggedIn }) {
       const response = await login({ username, password });
 
       if (response?.statusCode === 200 && response?.data) {
+        const user = response.data;
+
         saveAuthData({
-          deviceId: response.data.deviceId,
-          isAdmin: response.data.isAdmin
+          userId: user.id,
+          deviceId: user.deviceId,
+          isAdmin: user.isAdmin
         });
 
         toast.success("Login successful");
         setLoggedIn(true);
+
+        // Try to get FCM token and update user record
+        try {
+          if (window.getFcmToken) {
+            const fcmToken = await window.getFcmToken();
+            if (fcmToken) {
+              await updateUser(user.id, { fcmToken });
+            }
+          }
+        } catch (err) {
+          console.error('Failed to save FCM token', err);
+        }
       } else {
         toast.error(response?.statusMessage || "Login failed");
       }

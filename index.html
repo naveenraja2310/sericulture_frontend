@@ -30,16 +30,23 @@
         const app = initializeApp(firebaseConfig);
         const messaging = getMessaging(app);
 
-        Notification.requestPermission()
-            .then(async (permission) => {
-                if (permission === "granted") {
-                    const token = await getToken(messaging, {
-                        vapidKey: "BMVQ-t-SPMfnZu6ygT8448jmt9M4Nat1IeEQfiNAvvYZ0DI3S0GXhQQIfzfuGpSjA1JIJbI6IY4qZtIHRkSXqWY"
-                    });
+        // Expose helper to request permission and retrieve FCM token after login
+        window.getFcmToken = async () => {
+          try {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+              const token = await getToken(messaging, {
+                vapidKey: "BMVQ-t-SPMfnZu6ygT8448jmt9M4Nat1IeEQfiNAvvYZ0DI3S0GXhQQIfzfuGpSjA1JIJbI6IY4qZtIHRkSXqWY"
+              });
 
-                    console.log("FCM Token:", token);
-                }
-            });
+              console.log("FCM Token:", token);
+              return token;
+            }
+          } catch (err) {
+            console.error('Error getting FCM token', err);
+          }
+          return null;
+        };
     </script>
   </body>
 </html>
