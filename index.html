@@ -15,5 +15,31 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const messaging = getMessaging(app);
+
+        Notification.requestPermission()
+            .then(async (permission) => {
+                if (permission === "granted") {
+                    const token = await getToken(messaging, {
+                        vapidKey: "BMVQ-t-SPMfnZu6ygT8448jmt9M4Nat1IeEQfiNAvvYZ0DI3S0GXhQQIfzfuGpSjA1JIJbI6IY4qZtIHRkSXqWY"
+                    });
+
+                    console.log("FCM Token:", token);
+                }
+            });
+    </script>
   </body>
 </html>
