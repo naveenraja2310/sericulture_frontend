@@ -15,56 +15,102 @@
   <body>
     <div id="root"></div>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+      import {
+        getMessaging,
+        getToken,
+        onMessage
+      } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAZ0hFdQSmhYtW1Sz7fjOJCxKDzP2fPJb0",
-            authDomain: "yadhronics.firebaseapp.com",
-            projectId: "yadhronics",
-            messagingSenderId: "15512986021",
-            appId: "1:15512986021:web:07e08c346d935b9093484c"
-        };
+      const firebaseConfig = {
+        apiKey: "AIzaSyAZ0hFdQSmhYtW1Sz7fjOJCxKDzP2fPJb0",
+        authDomain: "yadhronics.firebaseapp.com",
+        projectId: "yadhronics",
+        messagingSenderId: "15512986021",
+        appId: "1:15512986021:web:07e08c346d935b9093484c"
+      };
 
-        const app = initializeApp(firebaseConfig);
-        const messaging = getMessaging(app);
+      const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging(app);
 
-        // Expose helper to request permission and retrieve FCM token after login
-        window.getFcmToken = async () => {
-          try {
-            const permission = await Notification.requestPermission();
-            if (permission === "granted") {
-              const token = await getToken(messaging, {
-                vapidKey: "BMVQ-t-SPMfnZu6ygT8448jmt9M4Nat1IeEQfiNAvvYZ0DI3S0GXhQQIfzfuGpSjA1JIJbI6IY4qZtIHRkSXqWY"
-              });
+      let swRegistration = null;
 
-              console.log("FCM Token:", token);
-              return token;
-            }
-          } catch (err) {
-            console.error('Error getting FCM token', err);
+      // Register Firebase Service Worker
+      async function registerFirebaseSW() {
+        try {
+          swRegistration = await navigator.serviceWorker.register(
+            "/firebase-messaging-sw.js"
+          );
+
+          console.log("Firebase SW Registered");
+
+        } catch (err) {
+          console.error("SW Registration Error:", err);
+        }
+      }
+
+      registerFirebaseSW();
+
+      // Called after login
+      window.getFcmToken = async () => {
+
+        try {
+
+          const permission = await Notification.requestPermission();
+
+          if (permission !== "granted") {
+            console.log("Notification permission denied");
+            return null;
           }
-          return null;
-        };
 
-        onMessage(messaging, (payload) => {
-          console.log("Foreground message:", payload);
-
-          const title = payload.data?.title || "Notification";
-          const body = payload.data?.body || payload.notification?.body || "";
-          const url = payload.data?.url || "/dashboard";
-
-          const notification = new Notification(title, {
-            body,
-            data: { url },
+          const token = await getToken(messaging, {
+            vapidKey:
+              "BMVQ-t-SPMfnZu6ygT8448jmt9M4Nat1IeEQfiNAvvYZ0DI3S0GXhQQIfzfuGpSjA1JIJbI6IY4qZtIHRkSXqWY",
+            serviceWorkerRegistration: swRegistration,
           });
 
-          notification.onclick = () => {
-            window.focus();
-            window.location.href = url;
-          };
+          console.log("FCM Token:", token);
+
+          return token;
+
+        } catch (err) {
+          console.error("Error getting FCM token:", err);
+          return null;
+        }
+      };
+
+      // Foreground Notifications
+      onMessage(messaging, (payload) => {
+
+        console.log("Foreground Message:", payload);
+
+        const title =
+          payload.data?.title ||
+          payload.notification?.title ||
+          "Notification";
+
+        const body =
+          payload.data?.body ||
+          payload.notification?.body ||
+          "";
+
+        const url =
+          payload.data?.url ||
+          "/dashboard";
+
+        const notification = new Notification(title, {
+          body,
+          icon: "/icons/icon-192.png",
+          data: { url },
         });
-    </script>
+
+        notification.onclick = () => {
+          window.focus();
+          window.location.href = url;
+          notification.close();
+        };
+      });
+      </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

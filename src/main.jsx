@@ -14,10 +14,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 // Use the inlined Firebase initialization from `index.html` when available.
 // Call `getFcmToken` once the window has loaded so the inline script
 // (which defines `window.getFcmToken`) has executed.
-if (typeof window !== "undefined") {
-  window.addEventListener("load", () => {
-    if (typeof window.getFcmToken === "function") {
-      window.getFcmToken();
-    }
-  });
-}
+// Do NOT request notification permission automatically on app open.
+// Call `window.getFcmToken()` explicitly after user action (e.g. login)
+// to avoid prompting or unexpected notifications when the PWA starts.
