@@ -51,19 +51,29 @@
         onMessage(messaging, (payload) => {
           console.log("Foreground message:", payload);
 
+          // If the payload already contains a `notification` field, the
+          // service worker (or FCM) may display a system notification.
+          // Avoid creating a duplicate system notification here.
+          if (payload.notification) {
+            // Optionally show an in-app banner or UI here instead.
+            return;
+          }
+
           const title = payload.data?.title || "Notification";
-          const body = payload.data?.body || payload.notification?.body || "";
+          const body = payload.data?.body || "";
           const url = payload.data?.url || "/dashboard";
 
-          const notification = new Notification(title, {
-            body,
-            data: { url },
-          });
+          if (Notification.permission === "granted") {
+            const notification = new Notification(title, {
+              body,
+              data: { url },
+            });
 
-          notification.onclick = () => {
-            window.focus();
-            window.location.href = url;
-          };
+            notification.onclick = () => {
+              window.focus();
+              window.location.href = url;
+            };
+          }
         });
     </script>
   </body>
