@@ -11,3 +11,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+// Use the inlined Firebase initialization from `index.html` when available.
+// Call `getFcmToken` once the window has loaded so the inline script
+// (which defines `window.getFcmToken`) has executed.
+if (typeof window !== "undefined") {
+  window.addEventListener("load", () => {
+    if (typeof window.getFcmToken === "function") {
+      window.getFcmToken();
+    }
+  });
+}
