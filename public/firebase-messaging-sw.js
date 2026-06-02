@@ -52,6 +52,36 @@ messaging.onBackgroundMessage((payload) => {
   });
 });
 
+// Fallback: handle raw push events in case the compat `onBackgroundMessage`
+// doesn't provide the notification fields. Some environments deliver the
+// payload differently; parsing `event.data.json()` ensures we extract title/body.
+self.addEventListener('push', (event) => {
+  console.log('push event received in SW', event);
+
+  let body = '';
+  let title = 'Notification';
+  let url = '/dashboard';
+
+  try {
+    const payload = event.data ? event.data.json() : {};
+    const data = payload.data || payload;
+    title = data.title || (payload.notification && payload.notification.title) || title;
+    body = data.body || (payload.notification && payload.notification.body) || '';
+    url = data.url || (payload.data && payload.data.url) || url;
+  } catch (err) {
+    console.warn('Failed to parse push event data', err);
+  }
+
+  const options = {
+    body,
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    data: { url },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
 // Notification Click
 self.addEventListener("notificationclick", (event) => {
 
