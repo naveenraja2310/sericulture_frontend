@@ -15,17 +15,17 @@ messaging.onBackgroundMessage((payload) => {
 
     console.log("Background Message:", payload);
 
-    self.registration.showNotification(
-        payload.notification?.title || "Notification",
-        {
-        body: payload.notification?.body,
+    // Prefer data fields when sending data-only messages from the server.
+    const title = payload.data?.title || payload.notification?.title || "Notification";
+    const body = payload.data?.body || payload.notification?.body || "";
+    const url = payload.data?.url || "/dashboard";
+
+    self.registration.showNotification(title, {
+        body,
         icon: "/icons/icon-192.png",
         badge: "/icons/icon-192.png",
-        data: {
-            url: payload.data?.url || "/dashboard",
-        },
-        }
-    );
+        data: { url },
+    });
 });
 
 self.addEventListener("notificationclick", (event) => {
