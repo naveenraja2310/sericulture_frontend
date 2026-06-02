@@ -64,15 +64,12 @@
           const url = payload.data?.url || "/dashboard";
 
           if (Notification.permission === "granted") {
-            const notification = new Notification(title, {
+            self.registration.showNotification(title, {
               body,
+              icon: "/icons/icon-192.png",
+              badge: "/icons/icon-192.png",
               data: { url },
             });
-
-            notification.onclick = () => {
-              window.focus();
-              window.location.href = url;
-            };
           }
         });
     </script>
