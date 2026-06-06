@@ -16,8 +16,6 @@ function Login({ setLoggedIn }) {
     }
     setLoading(true);
 
-    // Start the permission request immediately (user gesture) and keep the
-    // returned promise so we can await it later after login completes.
     let permissionPromise = null;
     try {
       if ('Notification' in window && Notification.permission === 'default') {
@@ -26,7 +24,6 @@ function Login({ setLoggedIn }) {
           return null;
         });
       } else {
-        // create a resolved promise with current permission value for uniform handling
         permissionPromise = Promise.resolve(Notification.permission);
       }
     } catch (err) {
@@ -38,7 +35,6 @@ function Login({ setLoggedIn }) {
       const response = await login({ username, password });
       console.log("Login response", response);
       if (response?.statusCode === 200 && response?.data) {
-        // Support APIs that return the user either as `data` or `data.user`.
         const user = response.data?.user || response.data;
         console.log("Resolved user object:", user);
 
@@ -51,13 +47,15 @@ function Login({ setLoggedIn }) {
         toast.success("Login successful");
         setLoggedIn(true);
 
-        // Await the earlier permission prompt result and then, if granted,
-        // fetch the FCM token and save it.
         try {
           const perm = await permissionPromise;
           console.log('Notification permission result:', perm);
           if (perm === 'granted') {
             if (window.getFcmToken) {
+              // Wait for SW to be fully active before fetching token (critical for PWA)
+              if ('serviceWorker' in navigator) {
+                await navigator.serviceWorker.ready;
+              }
               const fcmToken = await window.getFcmToken();
               console.log('Fetched FCM token post-login:', fcmToken);
               if (fcmToken) {
@@ -87,13 +85,10 @@ function Login({ setLoggedIn }) {
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
-            {/* <i className="ti ti-leaf" aria-hidden="true" /> */}
             <img src="/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
           </div>
-
           <h1>Sericulture IOT</h1>
         </div>
-        {/* <p>Smart monitoring system for silkworm farms</p> */}
 
         <div className="input-group">
           <i className="ti ti-user input-icon" aria-hidden="true" />
