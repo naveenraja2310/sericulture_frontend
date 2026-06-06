@@ -61,7 +61,8 @@ function Login({ setLoggedIn }) {
               const fcmToken = await window.getFcmToken();
               console.log('Fetched FCM token post-login:', fcmToken);
               if (fcmToken) {
-                await updateUser(user.id, { fcmToken });
+                const updateResponse = await updateUser(user.id, { fcmToken });
+                console.log("FCM update response:", updateResponse);
               }
             }
           } else {

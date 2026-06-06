@@ -16,9 +16,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/firebase-messaging-sw.js')
     .then((reg) => {
-      console.log('Service worker registered for PWA:', reg);
+      console.log('Service worker registered:', reg);
+      return navigator.serviceWorker.ready;
+    })
+    .then((readyReg) => {
+      console.log('Service worker ready:', readyReg);
     })
     .catch((err) => {
-      console.warn('Service worker registration failed:', err);
+      console.error('Service worker registration failed:', err);
     });
 }
