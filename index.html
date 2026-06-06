@@ -38,16 +38,32 @@
             const registration = await navigator.serviceWorker.ready;
 
             console.log("Service Worker Ready:", registration);
+            alert('Service Worker Ready: ' + !!registration);
 
             const token = await getToken(messaging, {
               vapidKey: "BMVQ-t-SPMfnZu6ygT8448jmt9M4Nat1IeEQfiNAvvYZ0DI3S0GXhQQIfzfuGpSjA1JIJbI6IY4qZtIHRkSXqWY",
               serviceWorkerRegistration: registration,
             });
 
-            console.log("FCM Token:", token);
-            return token;
+            alert('FCM Token (with SW reg): ' + token);
+            if (token) return token;
+
+            // Fallback: try retrieving token without explicitly passing SW registration
+            try {
+              const tokenFallback = await getToken(messaging, {
+                vapidKey: "BMVQ-t-SPMfnZu6ygT8448jmt9M4Nat1IeEQfiNAvvYZ0DI3S0GXhQQIfzfuGpSjA1JIJbI6IY4qZtIHRkSXqWY"
+              });
+              console.log("FCM Token (fallback):", tokenFallback);
+              alert('FCM Token (fallback): ' + tokenFallback);
+              return tokenFallback || null;
+            } catch (e) {
+              console.warn('Fallback getToken error:', e);
+              alert('Fallback getToken error: ' + e);
+            }
+            return null;
           } catch (err) {
             console.error("Error getting FCM token:", err);
+            alert('Error getting FCM token: ' + err);
             return null;
           }
         };
