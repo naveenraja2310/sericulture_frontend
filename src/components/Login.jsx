@@ -16,16 +16,22 @@ function Login({ setLoggedIn }) {
     }
     setLoading(true);
 
-    // Request notification permission and FCM token early while still in the
-    // user click handler so the browser will show the permission prompt.
-    let preFcmToken = null;
+    // Start the permission request immediately (user gesture) and keep the
+    // returned promise so we can await it later after login completes.
+    let permissionPromise = null;
     try {
-      if (window.getFcmToken) {
-        preFcmToken = await window.getFcmToken();
-        console.log("Pre-login FCM token:", preFcmToken);
+      if ('Notification' in window && Notification.permission === 'default') {
+        permissionPromise = Notification.requestPermission().catch((e) => {
+          console.warn('Permission request failed', e);
+          return null;
+        });
+      } else {
+        // create a resolved promise with current permission value for uniform handling
+        permissionPromise = Promise.resolve(Notification.permission);
       }
     } catch (err) {
-      console.warn("FCM token request was not completed before login", err);
+      console.warn('Failed to initiate permission request', err);
+      permissionPromise = Promise.resolve(null);
     }
 
     try {
@@ -45,13 +51,21 @@ function Login({ setLoggedIn }) {
         toast.success("Login successful");
         setLoggedIn(true);
 
-        // If we obtained an FCM token earlier, associate it with the user record.
+        // Await the earlier permission prompt result and then, if granted,
+        // fetch the FCM token and save it.
         try {
-          if (preFcmToken) {
-            console.log("Calling updateUser with fcmToken", preFcmToken);
-            await updateUser(user.id, { fcmToken: preFcmToken });
+          const perm = await permissionPromise;
+          console.log('Notification permission result:', perm);
+          if (perm === 'granted') {
+            if (window.getFcmToken) {
+              const fcmToken = await window.getFcmToken();
+              console.log('Fetched FCM token post-login:', fcmToken);
+              if (fcmToken) {
+                await updateUser(user.id, { fcmToken });
+              }
+            }
           } else {
-            console.log("No FCM token to save (preFcmToken is null)");
+            console.log('Notification permission not granted; skipping token save');
           }
         } catch (err) {
           console.error('Failed to save FCM token', err);
