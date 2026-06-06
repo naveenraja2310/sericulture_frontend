@@ -14,8 +14,19 @@ function Login({ setLoggedIn }) {
       toast.error("Please enter username and password");
       return;
     }
-
     setLoading(true);
+
+    // Request notification permission and FCM token early while still in the
+    // user click handler so the browser will show the permission prompt.
+    let preFcmToken = null;
+    try {
+      if (window.getFcmToken) {
+        preFcmToken = await window.getFcmToken();
+        console.log("Pre-login FCM token:", preFcmToken);
+      }
+    } catch (err) {
+      console.warn("FCM token request was not completed before login", err);
+    }
 
     try {
       const response = await login({ username, password });
@@ -32,13 +43,10 @@ function Login({ setLoggedIn }) {
         toast.success("Login successful");
         setLoggedIn(true);
 
-        // Try to get FCM token and update user record
+        // If we obtained an FCM token earlier, associate it with the user record.
         try {
-          if (window.getFcmToken) {
-            const fcmToken = await window.getFcmToken();
-            if (fcmToken) {
-              await updateUser(user.id, { fcmToken });
-            }
+          if (preFcmToken) {
+            await updateUser(user.id, { fcmToken: preFcmToken });
           }
         } catch (err) {
           console.error('Failed to save FCM token', err);
