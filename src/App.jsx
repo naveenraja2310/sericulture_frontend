@@ -9,7 +9,7 @@ import { clearAuthData, isLoggedIn, getStoredIsAdmin } from "./utils/auth";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ThresholdTimer from "./pages/ThresholdTimer";
 import SetStage from "./pages/SetStage";
-import ContactUs from "./pages/ContactUs";
+import Notification from "./pages/Notification";
 import FooterNav from "./components/FooterNav";
 import { DeviceDataProvider } from "./contexts/DeviceDataContext";
 
@@ -52,7 +52,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/threshold" element={<ThresholdTimer />} />
                 <Route path="/setstage" element={<SetStage />} />
-                <Route path="/contactus" element={<ContactUs />} />
+                <Route path="/notification" element={<Notification />} />
               </>
             )}
             <Route path="*" element={<Navigate to={isAdmin ? "/users" : "/"} replace />} />

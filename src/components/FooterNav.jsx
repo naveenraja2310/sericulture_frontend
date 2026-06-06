@@ -5,7 +5,7 @@ const userLinks = [
   { to: "/",           end: true,  icon: "ti-layout-dashboard", label: "Dashboard"   },
   { to: "/threshold",  end: false, icon: "ti-adjustments",      label: "Thresholds"  },
   { to: "/setstage",   end: false, icon: "ti-settings",         label: "Set Stage"   },
-  { to: "/contactus",  end: false, icon: "ti-headset",          label: "Contact"     },
+  { to: "/notification",  end: false, icon: "ti-bell",          label: "Notification" },
 ];
 
 const adminLinks = [
