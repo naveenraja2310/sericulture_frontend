@@ -50,7 +50,6 @@ function Login({ setLoggedIn }) {
         try {
           const perm = await permissionPromise;
           console.log('Notification permission result:', perm);
-          alert('Notification permission: ' + perm);
           if (perm === 'granted') {
             if (window.getFcmToken) {
               // Wait for SW to be fully active before fetching token (critical for PWA)
@@ -59,20 +58,16 @@ function Login({ setLoggedIn }) {
               }
               const fcmToken = await window.getFcmToken();
               console.log('Fetched FCM token post-login:', fcmToken);
-              alert('FCM Token: ' + fcmToken);
               if (fcmToken) {
                 const updateResponse = await updateUser(user.id, { fcmToken });
                 console.log("FCM update response:", updateResponse);
-                alert('FCM token saved to server: ' + (updateResponse?.statusCode === 200 ? 'Success' : 'Failed'));
               }
             }
           } else {
             console.log('Notification permission not granted; skipping token save');
-            alert('Notification permission not granted; skipping token save');
           }
         } catch (err) {
           console.error('Failed to save FCM token', err);
-          alert('Failed to save FCM token: ' + err);
         }
       } else {
         toast.error(response?.statusMessage || "Login failed");
