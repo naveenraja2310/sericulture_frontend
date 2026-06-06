@@ -30,9 +30,11 @@ function Login({ setLoggedIn }) {
 
     try {
       const response = await login({ username, password });
-
+      console.log("Login response", response);
       if (response?.statusCode === 200 && response?.data) {
-        const user = response.data;
+        // Support APIs that return the user either as `data` or `data.user`.
+        const user = response.data?.user || response.data;
+        console.log("Resolved user object:", user);
 
         saveAuthData({
           userId: user.id,
@@ -46,7 +48,10 @@ function Login({ setLoggedIn }) {
         // If we obtained an FCM token earlier, associate it with the user record.
         try {
           if (preFcmToken) {
+            console.log("Calling updateUser with fcmToken", preFcmToken);
             await updateUser(user.id, { fcmToken: preFcmToken });
+          } else {
+            console.log("No FCM token to save (preFcmToken is null)");
           }
         } catch (err) {
           console.error('Failed to save FCM token', err);
