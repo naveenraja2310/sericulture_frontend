@@ -25,6 +25,32 @@ function Header({ onLogout }) {
       </div>
 
       <div className="header-right">
+        <button
+          className="test-notif-btn"
+          onClick={async () => {
+            try {
+              if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') {
+                await Notification.requestPermission();
+              }
+              if ('serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.ready;
+                reg.showNotification('Test Notification', {
+                  body: 'Manual notification test',
+                  icon: '/icons/icon-192.png',
+                });
+              } else if (typeof Notification !== 'undefined') {
+                new Notification('Test Notification', { body: 'Manual notification test', icon: '/icons/icon-192.png' });
+              }
+            } catch (e) {
+              console.error('Test notification failed', e);
+              alert('Failed to show test notification. See console for details.', e);
+            }
+          }}
+          aria-label="Test Notification"
+        >
+          Test Notification
+        </button>
+
         <button className="header-user-btn" onClick={handleLogout} aria-label="Logout">
           <i className="ti ti-user" aria-hidden="true" />
         </button>

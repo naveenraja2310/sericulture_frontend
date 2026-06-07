@@ -12,42 +12,76 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+    console.log("Firebase Background Message:", payload);
 
-    console.log("Background Message:", payload);
-
-    // Prefer data fields when sending data-only messages from the server.
-    const title = payload.data?.title || payload.notification?.title || "Notification";
-    const body = payload.data?.body || payload.notification?.body || "";
+    const title = payload.data?.title || "Notification";
+    const body = payload.data?.body || "";
     const url = payload.data?.url || "/dashboard";
 
     self.registration.showNotification(title, {
         body,
         icon: "/icons/icon-192.png",
         badge: "/icons/icon-192.png",
-        data: { url },
+        data: { url }
     });
 });
 
-self.addEventListener("notificationclick", (event) => {
+// Raw Push Event Handler
+self.addEventListener("push", (event) => {
+    console.log("RAW PUSH RECEIVED");
 
+    if (!event.data) {
+        console.log("No push data");
+        return;
+    }
+
+    const payload = event.data.json();
+
+    console.log("RAW PAYLOAD:", payload);
+
+    const title =
+        payload.data?.title ||
+        payload.notification?.title ||
+        "Notification";
+
+    const body =
+        payload.data?.body ||
+        payload.notification?.body ||
+        "";
+
+    const url =
+        payload.data?.url ||
+        "/dashboard";
+
+    event.waitUntil(
+        self.registration.showNotification(title, {
+            body,
+            icon: "/icons/icon-192.png",
+            badge: "/icons/icon-192.png",
+            data: { url }
+        })
+    );
+});
+
+self.addEventListener("notificationclick", (event) => {
     event.notification.close();
 
     const url = event.notification.data?.url || "/dashboard";
 
     event.waitUntil(
         clients.matchAll({
-        type: "window",
-        includeUncontrolled: true,
+            type: "window",
+            includeUncontrolled: true,
         }).then((clientList) => {
 
-        for (const client of clientList) {
-            if ("focus" in client) {
-            client.navigate(url);
-            return client.focus();
+            for (const client of clientList) {
+                if ("focus" in client) {
+                    client.navigate(url);
+                    return client.focus();
+                }
             }
-        }
 
-        return clients.openWindow(url);
+            return clients.openWindow(url);
         })
     );
 });
