@@ -16,20 +16,20 @@ const messaging = firebase.messaging();
 /**
  * Firebase background messages
  */
-messaging.onBackgroundMessage((payload) => {
+// messaging.onBackgroundMessage((payload) => {
 
-    const title = payload.data?.title || "Notification";
-    const body = payload.data?.body || "";
+//     const title = payload.data?.title || "Notification";
+//     const body = payload.data?.body || "";
 
-    return self.registration.showNotification(title, {
-        body,
-        icon: "/icons/icon-192.png",
-        badge: "/icons/icon-192.png",
-        data: {
-            url: payload.data?.url || "/dashboard"
-        }
-    });
-});
+//     return self.registration.showNotification(title, {
+//         body,
+//         icon: "/icons/icon-192.png",
+//         badge: "/icons/icon-192.png",
+//         data: {
+//             url: payload.data?.url || "/dashboard"
+//         }
+//     });
+// });
 
 /**
  * Raw Push Event Debugging
