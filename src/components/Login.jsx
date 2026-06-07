@@ -125,7 +125,7 @@ function Login({ setLoggedIn }) {
             </>
           )}
         </button>
-        <p className="app-version">app v1.0.1</p>
+        <p className="app-version">app v1.0.2</p>
       </div>
     </div>
   );

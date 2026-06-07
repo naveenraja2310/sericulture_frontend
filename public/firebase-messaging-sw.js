@@ -74,27 +74,18 @@ self.addEventListener("push", (event) => {
 
     try {
         payload = event.data ? event.data.json() : {};
-        console.log("RAW PUSH PAYLOAD:", payload);
     } catch (err) {
-        console.error("Failed to parse push payload:", err);
+        console.error(err);
     }
 
     event.waitUntil(
-        clients.matchAll({
-            type: "window",
-            includeUncontrolled: true,
-        }).then((clientList) => {
-
-            clientList.forEach(client => {
-                client.postMessage({
-                    type: "RAW_PUSH_RECEIVED",
-                    payload,
-                    receivedAt: new Date().toISOString(),
-                });
-            });
-
-            return Promise.resolve();
-        })
+        self.registration.showNotification(
+            "FCM DEBUG",
+            {
+                body: JSON.stringify(payload.data || payload),
+                icon: "/icons/icon-192.png"
+            }
+        )
     );
 });
 
