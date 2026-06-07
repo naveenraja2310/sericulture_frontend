@@ -35,13 +35,14 @@ messaging.onBackgroundMessage((payload) => {
  * Raw Push Event Debugging
  */
 self.addEventListener("push", (event) => {
-    console.log("RAW PUSH RECEIVED");
+
+    console.log("PUSH EVENT RECEIVED");
 
     event.waitUntil(
         self.registration.showNotification(
-            "PUSH RECEIVED",
+            "PUSH DEBUG",
             {
-                body: "Service worker got the push"
+                body: "Push reached service worker"
             }
         )
     );

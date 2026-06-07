@@ -14,7 +14,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
 // Register the service worker for PWA / firebase messaging
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+  navigator.serviceWorker.register(
+  '/firebase-messaging-sw.js',
+  {
+    scope: '/firebase-cloud-messaging-push-scope'
+  }
+)
     .then((reg) => {
       console.log('Service worker registered:', reg);
       return navigator.serviceWorker.ready;
