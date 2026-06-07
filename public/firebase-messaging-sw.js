@@ -34,19 +34,19 @@ messaging.onBackgroundMessage((payload) => {
 /**
  * Raw Push Event Debugging
  */
-self.addEventListener("push", (event) => {
+// self.addEventListener("push", (event) => {
 
-    console.log("PUSH EVENT RECEIVED");
+//     console.log("PUSH EVENT RECEIVED");
 
-    event.waitUntil(
-        self.registration.showNotification(
-            "PUSH DEBUG",
-            {
-                body: "Push reached service worker"
-            }
-        )
-    );
-});
+//     event.waitUntil(
+//         self.registration.showNotification(
+//             "PUSH DEBUG",
+//             {
+//                 body: "Push reached service worker"
+//             }
+//         )
+//     );
+// });
 
 /**
  * Notification Click Handler

@@ -82,8 +82,8 @@
             return;
           }
 
-          const title = payload.data?.title || "Notification";
-          const body = payload.data?.body || "";
+          const title = payload.data?.title || "Notification title";
+          const body = payload.data?.body || "Notification body";
           const url = payload.data?.url || "/dashboard";
 
           if (Notification.permission === "granted") {
