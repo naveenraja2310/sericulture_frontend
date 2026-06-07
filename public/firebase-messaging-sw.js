@@ -16,50 +16,18 @@ const messaging = firebase.messaging();
 /**
  * Firebase background messages
  */
-messaging.onBackgroundMessage(async (payload) => {
+messaging.onBackgroundMessage((payload) => {
 
-    console.log("Firebase Background Message:", payload);
-
-    const title =
-        payload.data?.title ||
-        payload.notification?.title ||
-        "Notification";
-
-    const body =
-        payload.data?.body ||
-        payload.notification?.body ||
-        "";
-
-    const url =
-        payload.data?.url ||
-        "/dashboard";
-
-    try {
-        const clientList = await clients.matchAll({
-            type: "window",
-            includeUncontrolled: true,
-        });
-
-        clientList.forEach(client => {
-            client.postMessage({
-                type: "FCM_RECEIVED",
-                payload,
-                receivedAt: new Date().toISOString(),
-            });
-        });
-    } catch (err) {
-        console.error("Error posting message to clients:", err);
-    }
+    const title = payload.data?.title || "Notification";
+    const body = payload.data?.body || "";
 
     return self.registration.showNotification(title, {
         body,
         icon: "/icons/icon-192.png",
         badge: "/icons/icon-192.png",
         data: {
-            url,
-            payload,
-        },
-        requireInteraction: true,
+            url: payload.data?.url || "/dashboard"
+        }
     });
 });
 
@@ -67,23 +35,13 @@ messaging.onBackgroundMessage(async (payload) => {
  * Raw Push Event Debugging
  */
 self.addEventListener("push", (event) => {
-
     console.log("RAW PUSH RECEIVED");
-
-    let payload = {};
-
-    try {
-        payload = event.data ? event.data.json() : {};
-    } catch (err) {
-        console.error(err);
-    }
 
     event.waitUntil(
         self.registration.showNotification(
-            "FCM DEBUG",
+            "PUSH RECEIVED",
             {
-                body: JSON.stringify(payload.data || payload),
-                icon: "/icons/icon-192.png"
+                body: "Service worker got the push"
             }
         )
     );
