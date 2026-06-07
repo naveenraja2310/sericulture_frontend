@@ -84,7 +84,7 @@
 
           const title = payload.data?.title || "Notification title";
           const body = payload.data?.body || "Notification body";
-          const url = payload.data?.url || "/dashboard";
+          const url = "/dashboard";
 
           if (Notification.permission === "granted") {
             if (navigator.serviceWorker && navigator.serviceWorker.ready) {
