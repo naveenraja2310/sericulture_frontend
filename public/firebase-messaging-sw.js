@@ -9,35 +9,16 @@ firebase.initializeApp({
     appId: "1:15512986021:web:07e08c346d935b9093484c"
 });
 
+console.log("Firebase Messaging Service Worker Loaded");
+
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
+/**
+ * Firebase background messages
+ */
+messaging.onBackgroundMessage(async (payload) => {
+
     console.log("Firebase Background Message:", payload);
-
-    const title = payload.data?.title || "Notification";
-    const body = payload.data?.body || "";
-    const url = payload.data?.url || "/dashboard";
-
-    self.registration.showNotification(title, {
-        body,
-        icon: "/icons/icon-192.png",
-        badge: "/icons/icon-192.png",
-        data: { url }
-    });
-});
-
-// Raw Push Event Handler
-self.addEventListener("push", (event) => {
-    console.log("RAW PUSH RECEIVED");
-
-    if (!event.data) {
-        console.log("No push data");
-        return;
-    }
-
-    const payload = event.data.json();
-
-    console.log("RAW PAYLOAD:", payload);
 
     const title =
         payload.data?.title ||
@@ -53,20 +34,82 @@ self.addEventListener("push", (event) => {
         payload.data?.url ||
         "/dashboard";
 
+    try {
+        const clientList = await clients.matchAll({
+            type: "window",
+            includeUncontrolled: true,
+        });
+
+        clientList.forEach(client => {
+            client.postMessage({
+                type: "FCM_RECEIVED",
+                payload,
+                receivedAt: new Date().toISOString(),
+            });
+        });
+    } catch (err) {
+        console.error("Error posting message to clients:", err);
+    }
+
+    return self.registration.showNotification(title, {
+        body,
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-192.png",
+        data: {
+            url,
+            payload,
+        },
+        requireInteraction: true,
+    });
+});
+
+/**
+ * Raw Push Event Debugging
+ */
+self.addEventListener("push", (event) => {
+
+    console.log("RAW PUSH RECEIVED");
+
+    let payload = {};
+
+    try {
+        payload = event.data ? event.data.json() : {};
+        console.log("RAW PUSH PAYLOAD:", payload);
+    } catch (err) {
+        console.error("Failed to parse push payload:", err);
+    }
+
     event.waitUntil(
-        self.registration.showNotification(title, {
-            body,
-            icon: "/icons/icon-192.png",
-            badge: "/icons/icon-192.png",
-            data: { url }
+        clients.matchAll({
+            type: "window",
+            includeUncontrolled: true,
+        }).then((clientList) => {
+
+            clientList.forEach(client => {
+                client.postMessage({
+                    type: "RAW_PUSH_RECEIVED",
+                    payload,
+                    receivedAt: new Date().toISOString(),
+                });
+            });
+
+            return Promise.resolve();
         })
     );
 });
 
+/**
+ * Notification Click Handler
+ */
 self.addEventListener("notificationclick", (event) => {
+
+    console.log("Notification clicked");
+
     event.notification.close();
 
-    const url = event.notification.data?.url || "/dashboard";
+    const url =
+        event.notification.data?.url ||
+        "/dashboard";
 
     event.waitUntil(
         clients.matchAll({
@@ -75,7 +118,8 @@ self.addEventListener("notificationclick", (event) => {
         }).then((clientList) => {
 
             for (const client of clientList) {
-                if ("focus" in client) {
+
+                if (client.url.includes(self.location.origin)) {
                     client.navigate(url);
                     return client.focus();
                 }
@@ -84,4 +128,20 @@ self.addEventListener("notificationclick", (event) => {
             return clients.openWindow(url);
         })
     );
+});
+
+/**
+ * Service Worker Install
+ */
+self.addEventListener("install", (event) => {
+    console.log("Service Worker Installed");
+    self.skipWaiting();
+});
+
+/**
+ * Service Worker Activate
+ */
+self.addEventListener("activate", (event) => {
+    console.log("Service Worker Activated");
+    event.waitUntil(self.clients.claim());
 });

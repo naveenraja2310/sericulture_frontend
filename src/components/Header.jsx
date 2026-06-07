@@ -1,6 +1,7 @@
 function Header({ onLogout }) {
   const deviceId = localStorage.getItem("deviceId");
   const isAdmin = localStorage.getItem("isAdmin") === "true";
+  const local = localStorage.getItem("lastNotification")
 
   const handleLogout = () => {
     const confirmed = window.confirm("Do you want to logout?");
@@ -19,7 +20,7 @@ function Header({ onLogout }) {
           <img src="/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
         </div>
         <div>
-          <h2>Sericulture Dashboard</h2>
+          <h2>Sericulture Dashboard {local}</h2>
           <p>{deviceId} {isAdmin ? "Admin" : ""}</p>
         </div>
       </div>

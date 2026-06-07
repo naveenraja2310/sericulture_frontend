@@ -26,6 +26,28 @@ function App() {
     setIsAdmin(loggedIn && getStoredIsAdmin());
   }, [loggedIn]);
 
+useEffect(() => {
+
+  navigator.serviceWorker?.addEventListener("message", (event) => {
+
+    console.log("Message from SW:", event.data);
+
+    if (
+      event.data?.type === "FCM_RECEIVED" ||
+      event.data?.type === "RAW_PUSH_RECEIVED"
+    ) {
+
+      localStorage.setItem(
+        "lastNotification",
+        JSON.stringify(event.data)
+      );
+
+      console.log("Push received successfully");
+    }
+  });
+
+}, []);
+
   const handleLogout = () => {
     clearAuthData();
     setLoggedIn(false);
