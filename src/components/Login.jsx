@@ -35,17 +35,15 @@ function Login({ setLoggedIn }) {
       const response = await login({ username, password });
       console.log("Login response", response);
       if (response?.statusCode === 200 && response?.data) {
-        const user = response.data?.user || response.data;
+        const user = response.data?.user || response.data || {};
+        const resolvedDeviceId = user.deviceId || user.deviceID || user.DeviceID || user.device_id || "";
         console.log("Resolved user object:", user);
 
         saveAuthData({
-          userId: user.id,
-          deviceId: user.deviceId,
-          isAdmin: user.isAdmin
+          userId: user.id || user._id,
+          deviceId: resolvedDeviceId,
+          isAdmin: Boolean(user.isAdmin)
         });
-
-        toast.success("Login successful");
-        setLoggedIn(true);
 
         try {
           const perm = await permissionPromise;
@@ -69,6 +67,9 @@ function Login({ setLoggedIn }) {
         } catch (err) {
           console.error('Failed to save FCM token', err);
         }
+
+        toast.success("Login successful");
+        setLoggedIn(true);
       } else {
         toast.error(response?.statusMessage || "Login failed");
       }
@@ -87,7 +88,7 @@ function Login({ setLoggedIn }) {
           <div className="login-logo">
             <img src="/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
           </div>
-          <h1>Sericulture IOT</h1>
+          <h1 className="login-title">PKS EC SOLUTION</h1>
         </div>
 
         <div className="input-group">
@@ -125,7 +126,10 @@ function Login({ setLoggedIn }) {
             </>
           )}
         </button>
-        <p className="app-version">app v1.0.5</p>
+        <div className="login-footer">
+          <div className="login-footer__version">app v2.0.0</div>
+          <div className="login-footer__powered">Powered by Yadhronics Private Limited</div>
+        </div>
       </div>
     </div>
   );

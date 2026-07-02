@@ -4,15 +4,31 @@ const THRESHOLD_ICONS = {
   "Temperature Threshold": "ti-temperature",
   "Humidity Threshold":    "ti-droplet",
   "Fan Cycle Time":        "ti-clock-play",
+  "Fan Temp Min":          "ti-temperature",
+  "Fan Temp Max":          "ti-temperature",
+  "Motor Hum Min":         "ti-droplet",
+  "Motor Hum Max":         "ti-droplet",
+  "Heater Temp Min":       "ti-flame",
+  "Heater Temp Max":       "ti-flame",
+  "Fan On Duration":       "ti-clock-play",
+  "Fan Off Duration":      "ti-clock-play",
 };
 
 const THRESHOLD_UNITS = {
   "Temperature Threshold": "°C",
   "Humidity Threshold":    "%",
   "Fan Cycle Time":        "s",
+  "Fan Temp Min":          "°C",
+  "Fan Temp Max":          "°C",
+  "Motor Hum Min":         "%",
+  "Motor Hum Max":         "%",
+  "Heater Temp Min":       "°C",
+  "Heater Temp Max":       "°C",
+  "Fan On Duration":       "s",
+  "Fan Off Duration":      "s",
 };
 
-function ThresholdCard({ title, value, onSave, disabled }) {
+function ThresholdCard({ title, value, onSave, disabled, icon: customIcon, unit: customUnit, step = "0.1" }) {
   const [input, setInput] = useState(value);
   const [saving, setSaving] = useState(false);
 
@@ -20,8 +36,8 @@ function ThresholdCard({ title, value, onSave, disabled }) {
     setInput(value);
   }, [value]);
 
-  const icon = THRESHOLD_ICONS[title] || "ti-adjustments";
-  const unit = THRESHOLD_UNITS[title] || "";
+  const icon = customIcon || THRESHOLD_ICONS[title] || "ti-adjustments";
+  const unit = customUnit ?? (THRESHOLD_UNITS[title] || "");
 
   const handleSave = async () => {
     try {
@@ -42,7 +58,8 @@ function ThresholdCard({ title, value, onSave, disabled }) {
       <div className="threshold-box">
         <input
           type="number"
-          value={input}
+          step={step}
+          value={input ?? ""}
           onChange={(e) => setInput(e.target.value)}
           disabled={disabled || saving}
           placeholder={`Enter value${unit ? ` (${unit})` : ""}`}

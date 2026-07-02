@@ -7,8 +7,6 @@ function Header({ onLogout }) {
     if (!confirmed) return;
 
     localStorage.removeItem("token");
-    localStorage.removeItem("deviceId");
-    localStorage.removeItem("isAdmin");
     onLogout();
   };
 

@@ -5,8 +5,9 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Devices from "./pages/Devices";
 import { Toaster } from "react-hot-toast";
-import { clearAuthData, isLoggedIn, getStoredIsAdmin } from "./utils/auth";
+import { clearAuthData, isLoggedIn, getStoredIsAdmin, getStoredDeviceId } from "./utils/auth";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { logout } from "./api/authApi";
 import ThresholdTimer from "./pages/ThresholdTimer";
 import SetStage from "./pages/SetStage";
 import Notification from "./pages/Notification";
@@ -48,10 +49,17 @@ useEffect(() => {
 
 }, []);
 
-  const handleLogout = () => {
-    clearAuthData();
-    setLoggedIn(false);
-    setIsAdmin(false);
+  const handleLogout = async () => {
+    console.log("Initiating logout process for device ID:", getStoredDeviceId());
+    try {
+      await logout(getStoredDeviceId());
+    } catch (error) {
+      console.error("Logout request failed", error);
+    } finally {
+      clearAuthData();
+      setLoggedIn(false);
+      setIsAdmin(false);
+    }
   };
 
   return (

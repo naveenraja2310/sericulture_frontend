@@ -31,25 +31,28 @@ const apiSetStage = async (deviceId, stage) => {
   });
 };
 
-const apiSetTempThreshold = async (deviceId, value) => {
+const apiSetThreshold = async (deviceId, method, value) => {
   const id = deviceId || getDeviceId();
-  await API.post(`/device/${id}/temp-threshold`, {
-    value
+  await API.post(`/device/${id}/threshold`, {
+    method,
+    value: Number(value),
   });
+};
+
+export const setThresholdValue = async (deviceId, method, value) => {
+  return apiSetThreshold(deviceId, method, value);
+};
+
+const apiSetTempThreshold = async (deviceId, value) => {
+  return apiSetThreshold(deviceId, "setFanTempMin", value);
 };
 
 const apiSetHumThreshold = async (deviceId, value) => {
-  const id = deviceId || getDeviceId();
-  await API.post(`/device/${id}/hum-threshold`, {
-    value
-  });
+  return apiSetThreshold(deviceId, "setMotorHumMin", value);
 };
 
 const apiSetFanCycle = async (deviceId, minutes) => {
-  const id = deviceId || getDeviceId();
-  await API.post(`/device/${id}/fan-cycle`, {
-    minutes
-  });
+  return apiSetThreshold(deviceId, "setFanOnDuration", minutes);
 };
 
 const apiSetStageSettings = async (deviceId, settings) => {

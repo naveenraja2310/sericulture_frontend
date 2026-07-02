@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getTelemetries, sendDeviceAction, setMode, setTempThreshold, setHumThreshold, setFanCycle, setStage, setStageSettings as saveStageSettings } from "../api/deviceApi";
+import { getTelemetries, sendDeviceAction, setMode, setThresholdValue, setStage, setStageSettings as saveStageSettings } from "../api/deviceApi";
 
 const Devices = () => {
   const [telemetry, setTelemetry] = useState([]);
@@ -9,7 +9,16 @@ const Devices = () => {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [updating, setUpdating] = useState(false);
-  const [thresholdForm, setThresholdForm] = useState({ tempThreshold: 0, humThreshold: 0, fanCycleTime: 0 });
+  const [thresholdForm, setThresholdForm] = useState({
+    fanTempMin: 0,
+    fanTempMax: 0,
+    motorHumMin: 0,
+    motorHumMax: 0,
+    heaterTempMin: 0,
+    heaterTempMax: 0,
+    fanOnDuration: 0,
+    fanOffDuration: 0,
+  });
   const [stageSettings, setStageSettings] = useState([]);
   const [stageValue, setStageValue] = useState(1);
   const [stageSaving, setStageSaving] = useState(false);
@@ -30,7 +39,16 @@ const Devices = () => {
 
   const openView = (t) => {
     setSelected(t);
-    setThresholdForm({ tempThreshold: t.tempThreshold || 0, humThreshold: t.humThreshold || 0, fanCycleTime: t.fanCycleTime || 0 });
+    setThresholdForm({
+      fanTempMin: t.fanTempMin || 0,
+      fanTempMax: t.fanTempMax || 0,
+      motorHumMin: t.motorHumMin || 0,
+      motorHumMax: t.motorHumMax || 0,
+      heaterTempMin: t.heaterTempMin || 0,
+      heaterTempMax: t.heaterTempMax || 0,
+      fanOnDuration: t.fanOnDuration || 0,
+      fanOffDuration: t.fanOffDuration || 0,
+    });
     setStageSettings(Array.isArray(t.stages) ? t.stages : []);
     setStageValue(t.activeStage >= 1 ? t.activeStage : 1);
   };
@@ -318,10 +336,15 @@ const Devices = () => {
               <p className="dv-section-label">Thresholds & Timers</p>
               <div className="dv-threshold-grid">
                 {[
-                  { label: "Temp Threshold", icon: "ti-temperature", unit: "°C", field: "tempThreshold", step: "0.1", parse: parseFloat },
-                  { label: "Hum Threshold",  icon: "ti-droplet",     unit: "%",  field: "humThreshold",  step: "0.1", parse: parseFloat },
-                  { label: "Fan Cycle",      icon: "ti-clock-play",  unit: "min",field: "fanCycleTime",  step: "1",   parse: parseInt   },
-                ].map(({ label, icon, unit, field, step, parse }) => (
+                  { label: "Fan Temp Min", icon: "ti-temperature", unit: "°C", field: "fanTempMin", method: "setFanTempMin" },
+                  { label: "Fan Temp Max", icon: "ti-temperature", unit: "°C", field: "fanTempMax", method: "setFanTempMax" },
+                  { label: "Motor Hum Min", icon: "ti-droplet", unit: "%", field: "motorHumMin", method: "setMotorHumMin" },
+                  { label: "Motor Hum Max", icon: "ti-droplet", unit: "%", field: "motorHumMax", method: "setMotorHumMax" },
+                  { label: "Heater Temp Min", icon: "ti-flame", unit: "°C", field: "heaterTempMin", method: "setHeaterTempMin" },
+                  { label: "Heater Temp Max", icon: "ti-flame", unit: "°C", field: "heaterTempMax", method: "setHeaterTempMax" },
+                  { label: "Fan On Duration", icon: "ti-clock-play", unit: "s", field: "fanOnDuration", method: "setFanOnDuration" },
+                  { label: "Fan Off Duration", icon: "ti-clock-play", unit: "s", field: "fanOffDuration", method: "setFanOffDuration" },
+                ].map(({ label, icon, unit, field, method }) => (
                   <div key={field} className="card" style={{ padding: "14px 16px" }}>
                     <div className="card-label">
                       <i className={`ti ${icon}`} aria-hidden="true" />
@@ -330,9 +353,9 @@ const Devices = () => {
                     <div className="threshold-box">
                       <input
                         type="number"
-                        step={step}
+                        step="0.1"
                         value={thresholdForm[field]}
-                        onChange={e => setThresholdForm({ ...thresholdForm, [field]: parse(e.target.value || 0) })}
+                        onChange={e => setThresholdForm({ ...thresholdForm, [field]: parseFloat(e.target.value || 0) })}
                         disabled={updating}
                         placeholder={`Value (${unit})`}
                       />
@@ -349,9 +372,18 @@ const Devices = () => {
                     if (!selected) return;
                     setUpdating(true);
                     try {
-                      await setTempThreshold(selected.deviceId, thresholdForm.tempThreshold);
-                      await setHumThreshold(selected.deviceId, thresholdForm.humThreshold);
-                      await setFanCycle(selected.deviceId, thresholdForm.fanCycleTime);
+                      await Promise.all(
+                        [
+                          ["setFanTempMin", thresholdForm.fanTempMin],
+                          ["setFanTempMax", thresholdForm.fanTempMax],
+                          ["setMotorHumMin", thresholdForm.motorHumMin],
+                          ["setMotorHumMax", thresholdForm.motorHumMax],
+                          ["setHeaterTempMin", thresholdForm.heaterTempMin],
+                          ["setHeaterTempMax", thresholdForm.heaterTempMax],
+                          ["setFanOnDuration", thresholdForm.fanOnDuration],
+                          ["setFanOffDuration", thresholdForm.fanOffDuration],
+                        ].map(([method, value]) => setThresholdValue(selected.deviceId, method, value))
+                      );
                       await fetch();
                       const updated = (await getTelemetries({ page, limit })).data.telemetry.find(x => x.deviceId === selected.deviceId);
                       setSelected(updated || null);
