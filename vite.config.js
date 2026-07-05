@@ -8,9 +8,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "Sericulture IoT",
-        short_name: "Sericulture",
-        description: "IoT Monitoring PWA",
+        name: "PKS Engineering",
+        short_name: "PKS Engineering",
+        description: "PKS Engineering Sericulture",
         theme_color: "#0f172a",
         background_color: "#0f172a",
         display: "standalone",

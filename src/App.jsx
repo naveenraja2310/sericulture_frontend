@@ -11,6 +11,7 @@ import { logout } from "./api/authApi";
 import ThresholdTimer from "./pages/ThresholdTimer";
 import SetStage from "./pages/SetStage";
 import Notification from "./pages/Notification";
+import ContactUs from "./pages/ContactUs";
 import FooterNav from "./components/FooterNav";
 import { DeviceDataProvider } from "./contexts/DeviceDataContext";
 
@@ -71,6 +72,7 @@ useEffect(() => {
         <DeviceDataProvider>
           <Header onLogout={handleLogout} />
           <Routes>
+            <Route path="/contact-us" element={<ContactUs />} />
             {isAdmin ? (
               <>
                 <Route path="/users" element={<Users />} />

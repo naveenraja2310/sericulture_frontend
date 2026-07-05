@@ -4,11 +4,11 @@ import axios from "axios";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
 
 const defaultStages = [
-  { tempSetpoint: 28, humSetpoint: 90, durationHours: 144 },
-  { tempSetpoint: 27, humSetpoint: 85, durationHours: 94 },
-  { tempSetpoint: 26, humSetpoint: 80, durationHours: 108 },
-  { tempSetpoint: 26, humSetpoint: 75, durationHours: 192 },
-  { tempSetpoint: 32, humSetpoint: 61, durationHours: 72 },
+  { tempSetpoint: 28, humSetpoint: 90, durationHours: 144, fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29 },
+  { tempSetpoint: 27, humSetpoint: 85, durationHours: 94, fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29 },
+  { tempSetpoint: 26, humSetpoint: 80, durationHours: 108, fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29 },
+  { tempSetpoint: 26, humSetpoint: 75, durationHours: 192, fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29 },
+  { tempSetpoint: 32, humSetpoint: 61, durationHours: 72, fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29 },
 ];
 
 const SetStage = () => {
@@ -42,6 +42,7 @@ const SetStage = () => {
     try {
       const deviceId = getDeviceId();
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      console.log("Saving stage settings for device ID:", deviceId, "with data:", stages);
       await axios.post(`${baseUrl}/device/${deviceId}/stage-settings`, stages);
       setMessage("success");
     } catch {
@@ -123,6 +124,102 @@ const SetStage = () => {
                     onChange={e => handleChange(idx, "durationHours", parseInt(e.target.value))}
                   />
                   <span className="stage-field-unit">hrs</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Fan Temp Min
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.fanTempMin}
+                    step="1"
+                    onChange={e => handleChange(idx, "fanTempMin", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">°C</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Fan Temp Max
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.fanTempMax}
+                    step="1"
+                    onChange={e => handleChange(idx, "fanTempMax", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">°C</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Motor Hum Min
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.motorHumMin}
+                    step="1"
+                    onChange={e => handleChange(idx, "motorHumMin", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">%</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Motor Hum Max
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.motorHumMax}
+                    step="1"
+                    onChange={e => handleChange(idx, "motorHumMax", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">%</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Heater Temp Min
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.heaterTempMin}
+                    step="1"
+                    onChange={e => handleChange(idx, "heaterTempMin", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">°C</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Heater Temp Max
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.heaterTempMax}
+                    step="1"
+                    onChange={e => handleChange(idx, "heaterTempMax", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">°C</span>
                 </div>
               </div>
             </div>

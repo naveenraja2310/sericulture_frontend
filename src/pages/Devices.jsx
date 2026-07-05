@@ -7,6 +7,8 @@ const Devices = () => {
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [thresholdForm, setThresholdForm] = useState({
@@ -26,7 +28,7 @@ const Devices = () => {
   const fetch = async () => {
     setLoading(true);
     try {
-      const res = await getTelemetries({ page, limit });
+      const res = await getTelemetries({ page, limit, search });
       if (res && res.data) {
         setTelemetry(res.data.telemetry || []);
         setTotal(res.data.total_count || 0);
@@ -35,7 +37,12 @@ const Devices = () => {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetch(); }, [page]);
+  useEffect(() => { fetch(); }, [page, search]);
+
+  const handleSearch = () => {
+    setSearch(searchInput.trim());
+    setPage(1);
+  };
 
   const openView = (t) => {
     setSelected(t);
@@ -97,6 +104,25 @@ const Devices = () => {
             <i className="ti ti-cpu" aria-hidden="true" />
             Devices
           </h2>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+        <div >
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder="Search device"
+            style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de" }}
+          />
+          <button
+            onClick={handleSearch}
+            style={{ padding: "10px 12px", borderRadius: 8, border: "none", background: "#2563eb", color: "#fff", cursor: "pointer" }}
+          >
+            Search
+          </button>
         </div>
       </div>
 
