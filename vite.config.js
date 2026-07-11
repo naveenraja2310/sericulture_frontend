@@ -8,9 +8,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "PKS Engineering",
-        short_name: "PKS Engineering",
-        description: "PKS Engineering Sericulture",
+        name: "PKS EC SOLUTION",
+        short_name: "PKS EC SOLUTION",
+        description: "PKS EC SOLUTION",
         theme_color: "#0f172a",
         background_color: "#0f172a",
         display: "standalone",

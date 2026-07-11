@@ -40,7 +40,7 @@ function Header({ onLogout }) {
           <img src="/icons/icon-192.png" alt="SeriSmart Logo" className="header-logo" />
         </div>
         <div>
-          <h2>Sericulture Dashboard</h2>
+          <h2>Dashboard</h2>
           <p>{deviceId} {isAdmin ? "Admin" : ""}</p>
         </div>
       </div>
