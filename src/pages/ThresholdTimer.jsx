@@ -22,6 +22,7 @@ const ThresholdTimer = () => {
         heaterTempMax: isGprsConnected ? data.heaterTempMax ?? 0 : 0,
         fanOnDuration: isGprsConnected ? data.fanOnDuration ?? 0 : 0,
         fanOffDuration: isGprsConnected ? data.fanOffDuration ?? 0 : 0,
+        timer: isGprsConnected ? data.timer ?? 0 : 0,
       }
     : {
         fanTempMin: 0,
@@ -32,6 +33,7 @@ const ThresholdTimer = () => {
         heaterTempMax: 0,
         fanOnDuration: 0,
         fanOffDuration: 0,
+        timer: 0,
       };
 
   const thresholdFields = [

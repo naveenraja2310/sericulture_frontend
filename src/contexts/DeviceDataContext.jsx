@@ -47,6 +47,7 @@ export const DeviceDataProvider = ({ children }) => {
         setData({
           gprsStatus: false,
           powerOn: false,
+          timer: 0,
           temperature: 0,
           humidity: 0,
           motor: 0,

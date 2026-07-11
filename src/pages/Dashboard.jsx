@@ -22,6 +22,7 @@ function Dashboard() {
 
   const isGprsConnected = data?.gprsStatus ? /connect/i.test(data.gprsStatus) : false;
   const isPoweredOn = data?.powerOn === 1;
+  const isTimerActive = data?.timer === 1;
   const rawMode = data?.mode ? data.mode.toUpperCase() : "MANUAL";
   const actionEnabledBase = isGprsConnected && isPoweredOn;
   const actionDisabled = !actionEnabledBase;
@@ -41,6 +42,7 @@ function Dashboard() {
         activeStage: data.activeStage,
         gprsStatus: data.gprsStatus,
         powerOn: data.powerOn,
+        timer: data.timer,
       }
     : null;
 
@@ -179,6 +181,7 @@ function Dashboard() {
         <ToggleCard title="Motor" status={displayData.motor} disabled={actionDisabled || isAuto} onToggle={() => handleToggle("motor", displayData.motor)} />
         <ToggleCard title="Fan" status={displayData.fan} disabled={actionDisabled || isAuto} onToggle={() => handleToggle("fan", displayData.fan)} />
         <ToggleCard title="Heater" status={displayData.heater} disabled={actionDisabled || isAuto} onToggle={() => handleToggle("heater", displayData.heater)} />
+        <ToggleCard title="Timer" status={displayData.timer} disabled={true} />
       </div>
     </div>
   );
