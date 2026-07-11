@@ -32,8 +32,16 @@ const Devices = () => {
     }
   };
 
-  const fetch = async () => {
-    await handleRefreshLatestData();
+const fetch = async () => {
+    setLoading(true);
+    try {
+      const res = await getTelemetries({ page, limit });
+      if (res && res.data) {
+        setTelemetry(res.data.telemetry || []);
+        setTotal(res.data.total_count || 0);
+      }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => { fetch(); }, [page, search]);
@@ -57,7 +65,7 @@ const Devices = () => {
         const status = await getStatus(item.deviceId);
         console.log(`Status for ${item.deviceId}:`, status);
       }
-
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       const refreshed = await getTelemetries({ page, limit, search });
       applyTelemetryResponse(refreshed);
     } catch (e) {
