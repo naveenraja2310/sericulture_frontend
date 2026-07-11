@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getTelemetries, sendDeviceAction, setMode, setThresholdValue, setStage, setStageSettings as saveStageSettings } from "../api/deviceApi";
+import { getStatus, getTelemetries, sendDeviceAction, setMode, setThresholdValue, setStage, setStageSettings as saveStageSettings } from "../api/deviceApi";
 
 const Devices = () => {
   const [telemetry, setTelemetry] = useState([]);
@@ -25,16 +25,15 @@ const Devices = () => {
   const [stageValue, setStageValue] = useState(1);
   const [stageSaving, setStageSaving] = useState(false);
 
+  const applyTelemetryResponse = (response) => {
+    if (response && response.data) {
+      setTelemetry(response.data.telemetry || []);
+      setTotal(response.data.total_count || 0);
+    }
+  };
+
   const fetch = async () => {
-    setLoading(true);
-    try {
-      const res = await getTelemetries({ page, limit, search });
-      if (res && res.data) {
-        setTelemetry(res.data.telemetry || []);
-        setTotal(res.data.total_count || 0);
-      }
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    await handleRefreshLatestData();
   };
 
   useEffect(() => { fetch(); }, [page, search]);
@@ -42,6 +41,30 @@ const Devices = () => {
   const handleSearch = () => {
     setSearch(searchInput.trim());
     setPage(1);
+  };
+
+  const handleRefreshLatestData = async () => {
+    setLoading(true);
+    try {
+      console.log("Calling latest data API");
+
+      const res = await getTelemetries({ page, limit, search });
+      applyTelemetryResponse(res);
+
+      const items = res?.data?.telemetry || [];
+      for (const item of items) {
+        if (!item?.deviceId) continue;
+        const status = await getStatus(item.deviceId);
+        console.log(`Status for ${item.deviceId}:`, status);
+      }
+
+      const refreshed = await getTelemetries({ page, limit, search });
+      applyTelemetryResponse(refreshed);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openView = (t) => {
@@ -108,20 +131,26 @@ const Devices = () => {
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-        <div >
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Search device"
-            style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de" }}
+            style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de", minWidth: 220 }}
           />
           <button
             onClick={handleSearch}
             style={{ padding: "10px 12px", borderRadius: 8, border: "none", background: "#2563eb", color: "#fff", cursor: "pointer" }}
           >
             Search
+          </button>
+          <button
+            onClick={handleRefreshLatestData}
+            style={{ padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1", background: "#f8fafc", color: "#0f172a", cursor: "pointer" }}
+          >
+            Refresh Data
           </button>
         </div>
       </div>
@@ -286,6 +315,15 @@ const Devices = () => {
                     </span>
                   </div>
                 </div>
+                <div className="dv-stat">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  <div>
+                    <span className="dv-stat-label">Timer</span>
+                    <span className={`dv-stat-value ${selected.timer === 1 ? "dv-on" : "dv-off"}`}>
+                      {selected.timer === 1 ? "ON" : "OFF"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* ── Device toggles ── */}
@@ -443,8 +481,12 @@ const Devices = () => {
                           </div>
 
                           {[
-                            { label: "Temp", icon: "ti-temperature", unit: "°C", key: "tempSetpoint", step: "0.1", parse: parseFloat },
-                            { label: "Humidity", icon: "ti-droplet", unit: "%",  key: "humSetpoint",  step: "0.1", parse: parseFloat },
+                            { label: "Fan Temp Min", icon: "ti-temperature", unit: "°C", key: "fanTempMin", step: "0.1", parse: parseFloat },
+                            { label: "Fan Temp Max", icon: "ti-temperature", unit: "°C", key: "fanTempMax", step: "0.1", parse: parseFloat },
+                            { label: "Motor Hum Min", icon: "ti-droplet", unit: "%", key: "motorHumMin", step: "0.1", parse: parseFloat },
+                            { label: "Motor Hum Max", icon: "ti-droplet", unit: "%", key: "motorHumMax", step: "0.1", parse: parseFloat },
+                            { label: "Heater Temp Min", icon: "ti-temperature", unit: "°C", key: "heaterTempMin", step: "0.1", parse: parseFloat },
+                            { label: "Heater Temp Max", icon: "ti-temperature", unit: "°C", key: "heaterTempMax", step: "0.1", parse: parseFloat },
                             { label: "Duration", icon: "ti-clock",   unit: "hrs",key: "durationHours",step: "1",   parse: parseInt   },
                           ].map(({ label, icon, unit, key, step, parse }) => (
                             <div key={key} className="stage-field">

@@ -9,6 +9,7 @@ export const getDeviceId = () => getStoredDeviceId()
 
 export const getStatus = async (deviceId) => {
   const id = deviceId || getDeviceId();
+  if (!id) return null;
   const res = await API.get(`/device/${id}/status`);
   return res.data;
 };
