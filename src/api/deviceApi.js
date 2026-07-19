@@ -14,6 +14,14 @@ export const getStatus = async (deviceId) => {
   return res.data;
 };
 
+export const updateSystemEnabled = async (enabled) => {
+  console.log("updateSystemEnabled enabled:", enabled);
+  const id = getDeviceId();
+  if (!id) return null;
+  const res = await API.post(`/device/${id}/system-enabled`, { enabled });
+  return res.data;
+};
+
 // internal api functions (accept deviceId first)
 const apiSendDeviceAction = async (deviceId, device, action) => {
   const id = deviceId || getDeviceId();

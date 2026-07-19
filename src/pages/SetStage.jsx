@@ -4,11 +4,11 @@ import axios from "axios";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
 
 const defaultStages = [
-  {  fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 144,  },
-  {  fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 120,  },
-  {  fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
-  {  fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
-  {  fanTempMin: 25, fanTempMax: 30, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 144,  },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 120,  },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
 ];
 
 const SetStage = () => {
@@ -108,6 +108,38 @@ const SetStage = () => {
                     onChange={e => handleChange(idx, "fanTempMax", parseInt(e.target.value))}
                   />
                   <span className="stage-field-unit">°C</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Fan On Duration
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.fanOnDuration}
+                    step="1"
+                    onChange={e => handleChange(idx, "fanOnDuration", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">mins</span>
+                </div>
+              </div>
+
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  Fan Off Duration
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.fanOffDuration}
+                    step="1"
+                    onChange={e => handleChange(idx, "fanOffDuration", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">mins</span>
                 </div>
               </div>
 

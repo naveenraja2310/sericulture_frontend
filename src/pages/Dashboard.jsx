@@ -11,6 +11,7 @@ import {
   setTempThreshold,
   setHumThreshold,
   setFanCycle,
+  updateSystemEnabled,
 } from "../api/deviceApi";
 
 import toast from "react-hot-toast";
@@ -43,6 +44,7 @@ function Dashboard() {
         gprsStatus: data.gprsStatus,
         powerOn: data.powerOn,
         timer: data.timer,
+        systemEnabled: data.systemEnabled ? data.systemEnabled : false,
       }
     : null;
 
@@ -114,6 +116,18 @@ function Dashboard() {
     }
   };
 
+  const handleSystemEnabled = async () => {
+    try {
+      console.log("Current systemEnabled status:", displayData?.systemEnabled);
+      const newStatus = !displayData?.systemEnabled;
+      await updateSystemEnabled(newStatus);
+      toast.success(newStatus ? "System enabled" : "System disabled");
+      refreshData();
+    } catch(err) {
+      toast.error("Failed to update system status", err);
+    }
+  } 
+
   if (loading || !data) return <Loader />;
 
   const isAuto = effectiveMode === "AUTO";
@@ -132,8 +146,30 @@ function Dashboard() {
         <StatusCard title="Humidity" value={displayData.humidity.toFixed(2)} unit="%" />
       </div>
 
+      <div style={{ marginBottom: "24px", marginTop: "24px" }}>
+        <div className="card mode-card">
+          <div className="card-label">
+            <i className="ti ti-adjustments-horizontal" aria-hidden="true" />
+            System Enabled
+          </div>
+
+          <button
+            className={`mode-circle ${displayData?.systemEnabled ? "true" : "false"}`}
+            onClick={handleSystemEnabled}
+            aria-label={`Switch to ${displayData?.systemEnabled ? "true" : "false"} mode`}
+          >
+            <i className={`ti ${displayData?.systemEnabled ? "ti-robot" : "ti-hand-click"}`} />
+            {displayData?.systemEnabled ? "ENABLED" : "DISABLED"}
+          </button>
+
+          <p className="mode-hint" style={{ marginTop: 10 }}>
+            {displayData?.systemEnabled ? "System is enabled" : "System is disabled"}
+          </p>
+        </div>
+      </div>
+      
       <p className="section-label">Device Control</p>
-      <div style={{ marginBottom: "32px" }}>
+      <div style={{ marginBottom: "24px" }}>
         <div className="card mode-card">
           <div className="card-label">
             <i className="ti ti-adjustments-horizontal" aria-hidden="true" />

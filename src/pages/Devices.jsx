@@ -491,6 +491,8 @@ const fetch = async () => {
                           {[
                             { label: "Fan Temp Min", icon: "ti-temperature", unit: "°C", key: "fanTempMin", step: "0.1", parse: parseFloat },
                             { label: "Fan Temp Max", icon: "ti-temperature", unit: "°C", key: "fanTempMax", step: "0.1", parse: parseFloat },
+                            { label: "Fan On Duration", icon: "ti-clock", unit: "mins", key: "fanOnDuration", step: "1", parse: parseInt },
+                            { label: "Fan Off Duration", icon: "ti-clock", unit: "mins", key: "fanOffDuration", step: "1", parse: parseInt },
                             { label: "Motor Hum Min", icon: "ti-droplet", unit: "%", key: "motorHumMin", step: "0.1", parse: parseFloat },
                             { label: "Motor Hum Max", icon: "ti-droplet", unit: "%", key: "motorHumMax", step: "0.1", parse: parseFloat },
                             { label: "Heater Temp Min", icon: "ti-temperature", unit: "°C", key: "heaterTempMin", step: "0.1", parse: parseFloat },
