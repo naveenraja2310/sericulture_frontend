@@ -42,7 +42,8 @@ function Login({ setLoggedIn }) {
         saveAuthData({
           userId: user.id || user._id,
           deviceId: resolvedDeviceId,
-          isAdmin: Boolean(user.isAdmin)
+          isAdmin: Boolean(user.isAdmin),
+          isSuperAdmin: Boolean(user.isSuperAdmin)
         });
 
         try {

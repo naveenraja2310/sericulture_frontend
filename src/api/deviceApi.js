@@ -74,6 +74,22 @@ export const getTelemetries = async ({ page = 1, limit = 10, search = '' } = {})
   return res.data;
 };
 
+export const uploadFirmwareFile = async (file) => {
+  const formData = new FormData();
+  formData.append('document', file);
+
+  const res = await API.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  return res.data;
+};
+
+export const updateFirmwareForDevice = async (deviceId, payload) => {
+  const res = await API.post(`/update-firmware/${deviceId}`, payload);
+  return res.data;
+};
+
 // Backwards-compatible wrappers (old signatures used across the app)
 export const sendDeviceAction = async (deviceIdOrDevice, maybeDevice, maybeAction) => {
   // Support (deviceId, device, action) or (device, action)

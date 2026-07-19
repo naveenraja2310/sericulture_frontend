@@ -13,8 +13,12 @@ const adminLinks = [
   { to: "/devices", end: false, icon: "ti-cpu",    label: "Devices" },
 ];
 
-const FooterNav = ({ isAdmin }) => {
-  const links = isAdmin ? adminLinks : userLinks;
+const superadminLinks = [
+  { to: "/ota",   end: false, icon: "ti-cpu",  label: "OTA Updates"   },
+];
+
+const FooterNav = ({ isAdmin, isSuperAdmin }) => {
+  const links = isSuperAdmin ? superadminLinks : isAdmin ? adminLinks : userLinks;
 
   return (
     <nav className="footer-nav">
