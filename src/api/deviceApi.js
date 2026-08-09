@@ -14,9 +14,9 @@ export const getStatus = async (deviceId) => {
   return res.data;
 };
 
-export const updateSystemEnabled = async (enabled) => {
+export const updateSystemEnabled = async (deviceId, enabled) => {
   console.log("updateSystemEnabled enabled:", enabled);
-  const id = getDeviceId();
+  const id = deviceId || getDeviceId();
   if (!id) return null;
   const res = await API.post(`/device/${id}/system-enabled`, { enabled });
   return res.data;

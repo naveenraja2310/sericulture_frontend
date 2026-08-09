@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getStatus, getTelemetries, sendDeviceAction, setMode, setThresholdValue, setStage, setStageSettings as saveStageSettings } from "../api/deviceApi";
+import { getStatus, getTelemetries, sendDeviceAction, setMode, setThresholdValue, setStage, updateSystemEnabled, setStageSettings as saveStageSettings } from "../api/deviceApi";
+import toast from "react-hot-toast";
 
 const Devices = () => {
   const [telemetry, setTelemetry] = useState([]);
@@ -120,6 +121,18 @@ const fetch = async () => {
     } catch (e) { console.error(e); return false; }
     finally { setStageSaving(false); }
   };
+
+  const handleSystemEnabled = async () => {
+    try {
+      console.log("Current systemEnabled status:", selected?.systemEnabled);
+      const newStatus = !selected?.systemEnabled;
+      await updateSystemEnabled(selected.deviceId, newStatus);
+      toast.success(newStatus ? "System enabled" : "System disabled");
+      refreshData();
+    } catch(err) {
+      toast.error("Failed to update system status", err);
+    }
+  } 
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const isConnected = (t) => t.gprsStatus && /connect/i.test(t.gprsStatus);
@@ -331,6 +344,28 @@ const fetch = async () => {
                       {selected.timer === 1 ? "ON" : "OFF"}
                     </span>
                   </div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: "24px", marginTop: "24px" }}>
+                <div className="card mode-card">
+                  <div className="card-label">
+                    <i className="ti ti-adjustments-horizontal" aria-hidden="true" />
+                    System Enabled
+                  </div>
+
+                  <button
+                    className={`mode-circle ${selected?.systemEnabled ? "true" : "false"}`}
+                    onClick={handleSystemEnabled}
+                    aria-label={`Switch to ${selected?.systemEnabled ? "true" : "false"} mode`}
+                  >
+                    <i className={`ti ${selected?.systemEnabled ? "ti-robot" : "ti-hand-click"}`} />
+                    {selected?.systemEnabled ? "ENABLED" : "DISABLED"}
+                  </button>
+
+                  <p className="mode-hint" style={{ marginTop: 10 }}>
+                    {selected?.systemEnabled ? "System is enabled" : "System is disabled"}
+                  </p>
                 </div>
               </div>
 
