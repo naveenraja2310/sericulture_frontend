@@ -1,9 +1,5 @@
-import axios from "axios";
+import API from "./apiClient";
 import { getStoredDeviceId } from "../utils/auth";
-
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL
-});
 
 export const getDeviceId = () => getStoredDeviceId() 
 

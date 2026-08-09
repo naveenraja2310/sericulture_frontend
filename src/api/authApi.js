@@ -1,8 +1,4 @@
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL
-});
+import API from "./apiClient";
 
 export const login = async (credentials) => {
   const response = await API.post("/login", credentials);

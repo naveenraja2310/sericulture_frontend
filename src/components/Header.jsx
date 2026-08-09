@@ -23,7 +23,6 @@ function Header({ onLogout }) {
     const confirmed = window.confirm("Do you want to logout?");
     if (!confirmed) return;
 
-    localStorage.removeItem("token");
     setMenuOpen(false);
     onLogout();
   };

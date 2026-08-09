@@ -8,6 +8,13 @@ export const DeviceDataProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const deviceId = getDeviceId();
+    if (!deviceId) {
+      setLoading(false);
+      setData(null);
+      return;
+    }
+
     const loadData = async () => {
       try {
         const res = await getStatus();
@@ -23,7 +30,7 @@ export const DeviceDataProvider = ({ children }) => {
 
     const apiBase = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.host}`;
     const wsBase = apiBase.replace(/^http/, "ws");
-    const wsUrl = `${wsBase}/device/${getDeviceId()}/ws`;
+    const wsUrl = `${wsBase}/device/${deviceId}/ws`;
 
     let ws;
     let reconnectTimer;
