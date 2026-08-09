@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { getDeviceId } from "../api/deviceApi";
-import axios from "axios";
+import { getDeviceId, setStageSettings } from "../api/deviceApi";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
 
 const defaultStages = [
@@ -41,9 +40,8 @@ const SetStage = () => {
     setMessage("");
     try {
       const deviceId = getDeviceId();
-      const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      console.log("Saving stage settings for device ID:", deviceId, "with data:", stages);
-      await axios.post(`${baseUrl}/device/${deviceId}/stage-settings`, stages);
+      console.log("Saving stage settings for device ID:::", deviceId, "with data:", stages);
+      await setStageSettings(deviceId, stages);
       setMessage("success");
     } catch {
       setMessage("error");
