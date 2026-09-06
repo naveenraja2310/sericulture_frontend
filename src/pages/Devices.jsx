@@ -21,6 +21,7 @@ const Devices = () => {
     heaterTempMax: 0,
     fanOnDuration: 0,
     fanOffDuration: 0,
+    dehumidifierHum: 0,
   });
   const [stageSettings, setStageSettings] = useState([]);
   const [stageValue, setStageValue] = useState(1);
@@ -77,6 +78,7 @@ const fetch = async () => {
   };
 
   const openView = (t) => {
+    console.log("Selected telemetry:", t);
     setSelected(t);
     setThresholdForm({
       fanTempMin: t.fanTempMin || 0,
@@ -87,6 +89,7 @@ const fetch = async () => {
       heaterTempMax: t.heaterTempMax || 0,
       fanOnDuration: t.fanOnDuration || 0,
       fanOffDuration: t.fanOffDuration || 0,
+      dehumidifierHum: t.dehumidifierHum || 0,
     });
     setStageSettings(Array.isArray(t.stages) ? t.stages : []);
     setStageValue(t.activeStage >= 1 ? t.activeStage : 1);
@@ -451,6 +454,7 @@ const fetch = async () => {
                   { label: "Heater Temp Max", icon: "ti-flame", unit: "°C", field: "heaterTempMax", method: "setHeaterTempMax" },
                   { label: "Fan On Duration", icon: "ti-clock-play", unit: "s", field: "fanOnDuration", method: "setFanOnDuration" },
                   { label: "Fan Off Duration", icon: "ti-clock-play", unit: "s", field: "fanOffDuration", method: "setFanOffDuration" },
+                  { label: "dehumidifierHum", icon: "ti-droplet", unit: "%", field: "dehumidifierHum", method: "setdehumidifierHum" },
                 ].map(({ label, icon, unit, field, method }) => (
                   <div key={field} className="card" style={{ padding: "14px 16px" }}>
                     <div className="card-label">
@@ -489,6 +493,7 @@ const fetch = async () => {
                           ["setHeaterTempMax", thresholdForm.heaterTempMax],
                           ["setFanOnDuration", thresholdForm.fanOnDuration],
                           ["setFanOffDuration", thresholdForm.fanOffDuration],
+                          ["setdehumidifierHum", thresholdForm.dehumidifierHum],
                         ].map(([method, value]) => setThresholdValue(selected.deviceId, method, value))
                       );
                       await fetch();
@@ -532,6 +537,7 @@ const fetch = async () => {
                             { label: "Motor Hum Max", icon: "ti-droplet", unit: "%", key: "motorHumMax", step: "0.1", parse: parseFloat },
                             { label: "Heater Temp Min", icon: "ti-temperature", unit: "°C", key: "heaterTempMin", step: "0.1", parse: parseFloat },
                             { label: "Heater Temp Max", icon: "ti-temperature", unit: "°C", key: "heaterTempMax", step: "0.1", parse: parseFloat },
+                            { label: "dehumidifierHum", icon: "ti-droplet", unit: "%", key: "dehumidifierHum", step: "0.1", parse: parseFloat },
                             { label: "Duration", icon: "ti-clock",   unit: "hrs",key: "durationHours",step: "1",   parse: parseInt   },
                           ].map(({ label, icon, unit, key, step, parse }) => (
                             <div key={key} className="stage-field">

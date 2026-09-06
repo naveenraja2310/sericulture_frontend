@@ -23,6 +23,7 @@ const ThresholdTimer = () => {
         fanOnDuration: isGprsConnected ? data.fanOnDuration ?? 0 : 0,
         fanOffDuration: isGprsConnected ? data.fanOffDuration ?? 0 : 0,
         timer: isGprsConnected ? data.timer ?? 0 : 0,
+        dehumidifierHum: isGprsConnected ? data.dehumidifierHum ?? 0 : 0,
       }
     : {
         fanTempMin: 0,
@@ -33,6 +34,7 @@ const ThresholdTimer = () => {
         heaterTempMax: 0,
         fanOnDuration: 0,
         fanOffDuration: 0,
+        dehumidifierHum: 0,
         timer: 0,
       };
 
@@ -45,6 +47,7 @@ const ThresholdTimer = () => {
     { key: "heaterTempMax", method: "setHeaterTempMax", title: "Heater Temp Max", unit: "°C", step: "0.1" },
     { key: "fanOnDuration", method: "setFanOnDuration", title: "Fan On Duration", unit: "s", step: "0.1" },
     { key: "fanOffDuration", method: "setFanOffDuration", title: "Fan Off Duration", unit: "s", step: "0.1" },
+    { key: "dehumidifierHum", method: "setdehumidifierHum", title: "Dehumidifier", unit: "%", step: "0.1" },
   ];
 
   const saveThreshold = async (method, title, value) => {

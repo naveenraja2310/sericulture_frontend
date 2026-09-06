@@ -3,15 +3,16 @@ import { getDeviceId, setStageSettings } from "../api/deviceApi";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
 
 const defaultStages = [
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 144,  },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 120,  },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, durationHours: 94, },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 144,  },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 120,  },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 94, },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 94, },
+  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 94, },
 ];
 
 const SetStage = () => {
   const { data } = useContext(DeviceDataContext);
+  console.log("SetStage data @@@2:", data);
   const [stages, setStages] = useState(() =>
     data?.stages?.length > 0 ? data.stages : defaultStages
   );
@@ -204,7 +205,21 @@ const SetStage = () => {
                   <span className="stage-field-unit">°C</span>
                 </div>
               </div>
-
+              <div className="stage-field">
+                <div className="stage-field-label">
+                  <i className="ti ti-clock" aria-hidden="true" />
+                  dehumidifierHum
+                </div>
+                <div className="stage-field-input">
+                  <input
+                    type="number"
+                    value={stage.dehumidifierHum}
+                    step="1"
+                    onChange={e => handleChange(idx, "dehumidifierHum", parseInt(e.target.value))}
+                  />
+                  <span className="stage-field-unit">%</span>
+                </div>
+              </div>
               <div className="stage-field">
                 <div className="stage-field-label">
                   <i className="ti ti-clock" aria-hidden="true" />

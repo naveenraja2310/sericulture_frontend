@@ -12,6 +12,7 @@ const THRESHOLD_ICONS = {
   "Heater Temp Max":       "ti-flame",
   "Fan On Duration":       "ti-clock-play",
   "Fan Off Duration":      "ti-clock-play",
+  "Dehumidifier":          "ti-droplet",
 };
 
 const THRESHOLD_UNITS = {
@@ -26,6 +27,7 @@ const THRESHOLD_UNITS = {
   "Heater Temp Max":       "°C",
   "Fan On Duration":       "s",
   "Fan Off Duration":      "s",
+  "Dehumidifier":          "%",
 };
 
 function ThresholdCard({ title, value, onSave, disabled, icon: customIcon, unit: customUnit, step = "0.1" }) {
