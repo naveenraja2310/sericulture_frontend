@@ -47,7 +47,7 @@ const ThresholdTimer = () => {
     { key: "heaterTempMax", method: "setHeaterTempMax", title: "Heater Temp Max", unit: "°C", step: "0.1" },
     { key: "fanOnDuration", method: "setFanOnDuration", title: "Fan On Duration", unit: "s", step: "0.1" },
     { key: "fanOffDuration", method: "setFanOffDuration", title: "Fan Off Duration", unit: "s", step: "0.1" },
-    { key: "dehumidifierHum", method: "setdehumidifierHum", title: "Dehumidifier", unit: "%", step: "0.1" },
+    { key: "dehumidifierHum", method: "setDehumidifierHum", title: "Dehumidifier", unit: "%", step: "0.1" },
   ];
 
   const saveThreshold = async (method, title, value) => {
