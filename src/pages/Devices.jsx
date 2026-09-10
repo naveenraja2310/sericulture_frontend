@@ -26,6 +26,7 @@ const Devices = () => {
   const [stageSettings, setStageSettings] = useState([]);
   const [stageValue, setStageValue] = useState(1);
   const [stageSaving, setStageSaving] = useState(false);
+  const [thresholdSaving, setThresholdSaving] = useState(null);
 
   const applyTelemetryResponse = (response) => {
     if (response && response.data) {
@@ -77,6 +78,11 @@ const fetch = async () => {
     }
   };
 
+  const handleSuccessfulSave = async () => {
+    closeView();
+    await handleRefreshLatestData();
+  };
+
   const openView = (t) => {
     console.log("Selected telemetry:", t);
     setSelected(t);
@@ -102,9 +108,7 @@ const fetch = async () => {
     setUpdating(true);
     try {
       await actionFn(selected.deviceId, ...args);
-      await fetch();
-      const updated = (await getTelemetries({ page, limit })).data.telemetry.find(x => x.deviceId === selected.deviceId);
-      setSelected(updated || null);
+      await handleSuccessfulSave();
     } catch (e) { console.error(e); }
     finally { setUpdating(false); }
   };
@@ -117,12 +121,25 @@ const fetch = async () => {
     try {
       if (stage === 0) await setMode(selected.deviceId, "auto");
       else await setStage(selected.deviceId, stage);
-      await fetch();
-      const updated = (await getTelemetries({ page, limit })).data.telemetry.find(x => x.deviceId === selected.deviceId);
-      setSelected(updated || null);
+      await handleSuccessfulSave();
       return true;
     } catch (e) { console.error(e); return false; }
     finally { setStageSaving(false); }
+  };
+
+  const saveThreshold = async (method, field) => {
+    if (!selected) return;
+    setThresholdSaving(field);
+    try {
+      await setThresholdValue(selected.deviceId, method, thresholdForm[field]);
+      await handleSuccessfulSave();
+      toast.success(`${field} updated`);
+    } catch (e) {
+      console.error(e);
+      toast.error(`Failed to update ${field}`);
+    } finally {
+      setThresholdSaving(null);
+    }
   };
 
   const handleSystemEnabled = async () => {
@@ -131,7 +148,7 @@ const fetch = async () => {
       const newStatus = !selected?.systemEnabled;
       await updateSystemEnabled(selected.deviceId, newStatus);
       toast.success(newStatus ? "System enabled" : "System disabled");
-      refreshData();
+      await handleSuccessfulSave();
     } catch(err) {
       toast.error("Failed to update system status", err);
     }
@@ -467,48 +484,25 @@ const fetch = async () => {
                         step="0.1"
                         value={thresholdForm[field]}
                         onChange={e => setThresholdForm({ ...thresholdForm, [field]: parseFloat(e.target.value || 0) })}
-                        disabled={updating}
+                        disabled={updating || thresholdSaving === field}
                         placeholder={`Value (${unit})`}
                       />
                       <span className="stage-field-unit">{unit}</span>
+                      <button
+                        onClick={() => saveThreshold(method, field)}
+                        disabled={updating || thresholdSaving !== null}
+                        aria-label={`Save ${label}`}
+                      >
+                        <i
+                          className={`ti ${thresholdSaving === field ? "ti-loader-2" : "ti-device-floppy"}`}
+                          style={thresholdSaving === field ? { animation: "spin 0.9s linear infinite" } : {}}
+                          aria-hidden="true"
+                        />
+                        {thresholdSaving === field ? "Saving…" : "Set"}
+                      </button>
                     </div>
                   </div>
                 ))}
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
-                <button
-                  className="stage-save-btn"
-                  disabled={updating}
-                  onClick={async () => {
-                    if (!selected) return;
-                    setUpdating(true);
-                    try {
-                      await Promise.all(
-                        [
-                          ["setFanTempMin", thresholdForm.fanTempMin],
-                          ["setFanTempMax", thresholdForm.fanTempMax],
-                          ["setMotorHumMin", thresholdForm.motorHumMin],
-                          ["setMotorHumMax", thresholdForm.motorHumMax],
-                          ["setHeaterTempMin", thresholdForm.heaterTempMin],
-                          ["setHeaterTempMax", thresholdForm.heaterTempMax],
-                          ["setFanOnDuration", thresholdForm.fanOnDuration],
-                          ["setFanOffDuration", thresholdForm.fanOffDuration],
-                          ["setDehumidifierHum", thresholdForm.dehumidifierHum],
-                        ].map(([method, value]) => setThresholdValue(selected.deviceId, method, value))
-                      );
-                      await fetch();
-                      const updated = (await getTelemetries({ page, limit })).data.telemetry.find(x => x.deviceId === selected.deviceId);
-                      setSelected(updated || null);
-                    } catch (e) { console.error(e); }
-                    setUpdating(false);
-                  }}
-                >
-                  <i className={`ti ${updating ? "ti-loader-2" : "ti-device-floppy"}`}
-                    style={updating ? { animation: "spin 0.9s linear infinite" } : {}}
-                    aria-hidden="true"
-                  />
-                  {updating ? "Saving…" : "Save Thresholds"}
-                </button>
               </div>
 
               {/* ── Stage settings ── */}
@@ -572,9 +566,7 @@ const fetch = async () => {
                         setUpdating(true);
                         try {
                           await saveStageSettings(selected.deviceId, stageSettings);
-                          await fetch();
-                          const updated = (await getTelemetries({ page, limit })).data.telemetry.find(x => x.deviceId === selected.deviceId);
-                          setSelected(updated || null);
+                          await handleSuccessfulSave();
                         } catch (e) { console.error(e); }
                         setUpdating(false);
                       }}
