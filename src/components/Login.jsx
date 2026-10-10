@@ -49,6 +49,7 @@ function Login({ setLoggedIn }) {
           deviceId: resolvedDeviceId,
           isAdmin: Boolean(user.isAdmin),
           isSuperAdmin: Boolean(user.isSuperAdmin),
+          isCO2NH3User: user.isCO2NH3User === true,
           token,
         });
 

@@ -7,7 +7,7 @@ const TOGGLE_ICONS = {
 function ToggleCard({ title, status, onToggle, disabled }) {
   const icon = TOGGLE_ICONS[title] || "ti-toggle-left";
   const isActive = Boolean(status);
-  const displayStatus = disabled ? "Offline" : isActive ? "Running" : "Stopped";
+  const displayStatus = isActive ? "Running" : "Stopped";
 
   return (
     <div className="card">
@@ -25,8 +25,8 @@ function ToggleCard({ title, status, onToggle, disabled }) {
       </div>
 
       <div className="toggle-status">
-        <span className={`toggle-indicator ${disabled ? "off" : isActive ? "on" : "off"}`} />
-        <span className={`toggle-label ${disabled ? "off" : isActive ? "on" : "off"}`}>
+        <span className={`toggle-indicator ${isActive ? "on" : "off"}`} />
+        <span className={`toggle-label ${isActive ? "on" : "off"}`}>
           {displayStatus}
         </span>
       </div>

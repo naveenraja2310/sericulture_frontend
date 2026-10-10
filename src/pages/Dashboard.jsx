@@ -15,10 +15,12 @@ import {
 
 import toast from "react-hot-toast";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
+import { getStoredIsCO2NH3User } from "../utils/auth";
 
 function Dashboard() {
   const { data, loading, refreshData } = useContext(DeviceDataContext);
   const [stageValue, setStageValue] = useState(1);
+  const isCO2NH3User = getStoredIsCO2NH3User();
 
   const isGprsConnected = data?.gprsStatus ? /connect/i.test(data.gprsStatus) : false;
   const isPoweredOn = data?.powerOn === 1;
@@ -31,6 +33,8 @@ function Dashboard() {
     ? {
         temperature: isGprsConnected ? data.temperature : 0,
         humidity: isGprsConnected ? data.humidity : 0,
+        co2: isGprsConnected ? data.co2 : 0,
+        nh3: isGprsConnected ? data.nh3 : 0,
         motor: isGprsConnected ? data.motor : 0,
         fan: isGprsConnected ? data.fan : 0,
         heater: isGprsConnected ? data.heater : 0,
@@ -143,6 +147,12 @@ function Dashboard() {
       <div className="grid">
         <StatusCard title="Temperature" value={displayData.temperature.toFixed(1)} unit="°C" />
         <StatusCard title="Humidity" value={displayData.humidity.toFixed(2)} unit="%" />
+        {isCO2NH3User && (
+          <>
+            <StatusCard title="CO2" value={displayData.co2.toFixed(1)} unit="%" />
+            <StatusCard title="NH3" value={displayData.nh3.toFixed(2)} unit="%" />
+          </>
+        )}
       </div>
 
       {/* <div style={{ marginBottom: "24px", marginTop: "24px" }}>

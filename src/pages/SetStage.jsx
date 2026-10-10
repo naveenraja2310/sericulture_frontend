@@ -1,17 +1,19 @@
 import React, { useState, useContext, useEffect } from "react";
 import { getDeviceId, setStageSettings } from "../api/deviceApi";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
+import { getStoredIsCO2NH3User } from "../utils/auth";
 
 const defaultStages = [
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 144,  },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 120,  },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 94, },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 94, },
-  {  fanTempMin: 25, fanTempMax: 30, fanOnDuration: 120, fanOffDuration: 60, motorHumMin: 80, motorHumMax: 90, heaterTempMin: 27, heaterTempMax: 29, dehumidifierHum:10, durationHours: 94, },
+  { fanTempMin: 0, fanTempMax: 0, fanOnDuration: 0, fanOffDuration: 0, motorHumMin: 0, motorHumMax: 0, heaterTempMin: 0, heaterTempMax: 0, dehumidifierHum: 0, durationHours: 0, co2MaxPct: 0, co2MinPct: 0, nh3MaxPct: 0, nh3MinPct: 0 },
+  { fanTempMin: 0, fanTempMax: 0, fanOnDuration: 0, fanOffDuration: 0, motorHumMin: 0, motorHumMax: 0, heaterTempMin: 0, heaterTempMax: 0, dehumidifierHum: 0, durationHours: 0, co2MaxPct: 0, co2MinPct: 0, nh3MaxPct: 0, nh3MinPct: 0 },
+  { fanTempMin: 0, fanTempMax: 0, fanOnDuration: 0, fanOffDuration: 0, motorHumMin: 0, motorHumMax: 0, heaterTempMin: 0, heaterTempMax: 0, dehumidifierHum: 0, durationHours: 0, co2MaxPct: 0, co2MinPct: 0, nh3MaxPct: 0, nh3MinPct: 0 },
+  { fanTempMin: 0, fanTempMax: 0, fanOnDuration: 0, fanOffDuration: 0, motorHumMin: 0, motorHumMax: 0, heaterTempMin: 0, heaterTempMax: 0, dehumidifierHum: 0, durationHours: 0, co2MaxPct: 0, co2MinPct: 0, nh3MaxPct: 0, nh3MinPct: 0 },
+  { fanTempMin: 0, fanTempMax: 0, fanOnDuration: 0, fanOffDuration: 0, motorHumMin: 0, motorHumMax: 0, heaterTempMin: 0, heaterTempMax: 0, dehumidifierHum: 0, durationHours: 0, co2MaxPct: 0, co2MinPct: 0, nh3MaxPct: 0, nh3MinPct: 0 },
 ];
 
 const SetStage = () => {
   const { data } = useContext(DeviceDataContext);
+  const isCO2NH3User = getStoredIsCO2NH3User();
   console.log("SetStage data @@@2:", data);
   const [stages, setStages] = useState(() =>
     data?.stages?.length > 0 ? data.stages : defaultStages
@@ -21,6 +23,8 @@ const SetStage = () => {
   );
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+
+  console.log("SetStage data @@@444:", data);
 
   useEffect(() => {
     if (!stagesInitialized && data?.stages?.length > 0) {
@@ -72,7 +76,6 @@ const SetStage = () => {
               <span className={`stage-badge ${isActive ? "stage-badge--active" : "stage-badge--num"}`}>
                 {isActive ? "Active" : `Stage ${idx + 1}`}
               </span>
-
               <div className="stage-card-title">
                 <i className="ti ti-settings" aria-hidden="true" />
                 Stage {idx + 1}
@@ -220,6 +223,71 @@ const SetStage = () => {
                   <span className="stage-field-unit">%</span>
                 </div>
               </div>
+              
+              {isCO2NH3User && (
+                <>
+                  <div className="stage-field">
+                    <div className="stage-field-label">
+                      <i className="ti ti-clock" aria-hidden="true" />
+                      CO2 Min
+                    </div>
+                    <div className="stage-field-input">
+                      <input
+                        type="number"
+                        value={stage.co2MinPct}
+                        step="1"
+                        onChange={e => handleChange(idx, "co2MinPct", parseInt(e.target.value))}
+                      />
+                      <span className="stage-field-unit">%</span>
+                    </div>
+                  </div>
+                  <div className="stage-field">
+                    <div className="stage-field-label">
+                      <i className="ti ti-clock" aria-hidden="true" />
+                      CO2 Max
+                    </div>
+                    <div className="stage-field-input">
+                      <input
+                        type="number"
+                        value={stage.co2MaxPct}
+                        step="1"
+                        onChange={e => handleChange(idx, "co2MaxPct", parseInt(e.target.value))}
+                      />
+                      <span className="stage-field-unit">%</span>
+                    </div>
+                  </div>
+                  <div className="stage-field">
+                    <div className="stage-field-label">
+                      <i className="ti ti-clock" aria-hidden="true" />
+                      NH3 Min
+                    </div>
+                    <div className="stage-field-input">
+                      <input
+                        type="number"
+                        value={stage.nh3MinPct}
+                        step="1"
+                        onChange={e => handleChange(idx, "nh3MinPct", parseInt(e.target.value))}
+                      />
+                      <span className="stage-field-unit">%</span>
+                    </div>
+                  </div>
+                  <div className="stage-field">
+                    <div className="stage-field-label">
+                      <i className="ti ti-clock" aria-hidden="true" />
+                      NH3 Max
+                    </div>
+                    <div className="stage-field-input">
+                      <input
+                        type="number"
+                        value={stage.nh3MaxPct}
+                        step="1"
+                        onChange={e => handleChange(idx, "nh3MaxPct", parseInt(e.target.value))}
+                      />
+                      <span className="stage-field-unit">%</span>
+                    </div>
+                  </div>
+                </>
+              )}
               <div className="stage-field">
                 <div className="stage-field-label">
                   <i className="ti ti-clock" aria-hidden="true" />

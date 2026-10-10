@@ -48,6 +48,31 @@ export const setThresholdValue = async (deviceId, method, value) => {
   return apiSetThreshold(deviceId, method, value);
 };
 
+export const apiSetThresholdAdmin = async (deviceId, values) => {
+  const id = deviceId || getDeviceId();
+  const payload = {
+    setFanTempMin: Number(values.fanTempMin),
+    setFanTempMax: Number(values.fanTempMax),
+    setMotorHumMin: Number(values.motorHumMin),
+    setMotorHumMax: Number(values.motorHumMax),
+    setHeaterTempMin: Number(values.heaterTempMin),
+    setHeaterTempMax: Number(values.heaterTempMax),
+    setFanOnDuration: Number(values.fanOnDuration),
+    setFanOffDuration: Number(values.fanOffDuration),
+    setDehumidifierHum: Number(values.dehumidifierHum),
+    setCo2MinPct: Number(values.co2MinPct),
+    setCo2MaxPct: Number(values.co2MaxPct),
+    setNh3MinPct: Number(values.nh3MinPct),
+    setNh3MaxPct: Number(values.nh3MaxPct),
+    setTempOffset: Number(values.tempOffset),
+    setHumOffset: Number(values.humOffset),
+    setCo2Offset: Number(values.co2Offset),
+    setNh3Offset: Number(values.nh3Offset),
+  };
+  const res = await API.post(`/device/${id}/threshold/admin`, payload);
+  return res.data;
+};
+
 const apiSetTempThreshold = async (deviceId, value) => {
   return apiSetThreshold(deviceId, "setFanTempMin", value);
 };

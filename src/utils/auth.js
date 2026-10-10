@@ -1,5 +1,6 @@
 const IS_ADMIN_KEY = "isAdmin";
 const IS_SUPER_ADMIN_KEY = "isSuperAdmin";
+const IS_CO2_NH3_USER_KEY = "isCO2NH3User";
 const DEVICE_ID_KEY = "deviceId";
 const USER_ID_KEY = "userId";
 const TOKEN_KEY = "token";
@@ -10,6 +11,7 @@ const REMEMBERED_PASSWORD_KEY = "rememberedPassword";
 
 export const getStoredIsAdmin = () => localStorage.getItem(IS_ADMIN_KEY) === "true";
 export const getStoredIsSuperAdmin = () => localStorage.getItem(IS_SUPER_ADMIN_KEY) === "true";
+export const getStoredIsCO2NH3User = () => localStorage.getItem(IS_CO2_NH3_USER_KEY) === "true";
 export const getStoredDeviceId = () => localStorage.getItem(DEVICE_ID_KEY) || "";
 export const getStoredUserId = () => localStorage.getItem(USER_ID_KEY);
 export const getStoredToken = () => localStorage.getItem(TOKEN_KEY) || "";
@@ -35,7 +37,7 @@ export const saveRememberedCredentials = ({ username, password, rememberMe }) =>
 
 export const isLoggedIn = () => Boolean(localStorage.getItem(LoggedInKey)) && Boolean(getStoredToken());
 
-export const saveAuthData = ({ userId, deviceId, isAdmin, isSuperAdmin, token }) => {
+export const saveAuthData = ({ userId, deviceId, isAdmin, isSuperAdmin, isCO2NH3User, token }) => {
   const resolvedDeviceId = deviceId || getStoredDeviceId();
 
   if (userId) localStorage.setItem(USER_ID_KEY, userId);
@@ -45,6 +47,7 @@ export const saveAuthData = ({ userId, deviceId, isAdmin, isSuperAdmin, token })
   if (token) localStorage.setItem(TOKEN_KEY, token);
   if (isAdmin !== undefined) localStorage.setItem(IS_ADMIN_KEY, String(Boolean(isAdmin)));
   if (isSuperAdmin !== undefined) localStorage.setItem(IS_SUPER_ADMIN_KEY, String(Boolean(isSuperAdmin)));
+  if (isCO2NH3User !== undefined) localStorage.setItem(IS_CO2_NH3_USER_KEY, String(Boolean(isCO2NH3User)));
   localStorage.setItem(LoggedInKey, "true");
 };
 
@@ -53,6 +56,7 @@ export const clearAuthData = () => {
   localStorage.removeItem(USER_ID_KEY);
   localStorage.removeItem(IS_ADMIN_KEY);
   localStorage.removeItem(IS_SUPER_ADMIN_KEY);
+  localStorage.removeItem(IS_CO2_NH3_USER_KEY);
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(LoggedInKey);
 

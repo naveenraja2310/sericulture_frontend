@@ -3,9 +3,11 @@ import toast from "react-hot-toast";
 import { setThresholdValue } from "../api/deviceApi";
 import { DeviceDataContext } from "../contexts/DeviceDataContext";
 import ThresholdCard from "../components/ThresholdCard";
+import { getStoredIsCO2NH3User } from "../utils/auth";
 
 const ThresholdTimer = () => {
   const { data, loading } = useContext(DeviceDataContext);
+  const isCO2NH3User = getStoredIsCO2NH3User();
 
   console.log("thershold", data)
 
@@ -24,6 +26,10 @@ const ThresholdTimer = () => {
         fanOffDuration: isGprsConnected ? data.fanOffDuration ?? 0 : 0,
         timer: isGprsConnected ? data.timer ?? 0 : 0,
         dehumidifierHum: isGprsConnected ? data.dehumidifierHum ?? 0 : 0,
+        co2MinPct: isGprsConnected ? data.co2MinPct ?? 0 : 0,
+        co2MaxPct: isGprsConnected ? data.co2MaxPct ?? 0 : 0,
+        nh3MinPct: isGprsConnected ? data.nh3MinPct ?? 0 : 0,
+        nh3MaxPct: isGprsConnected ? data.nh3MaxPct ?? 0 : 0,
       }
     : {
         fanTempMin: 0,
@@ -36,6 +42,10 @@ const ThresholdTimer = () => {
         fanOffDuration: 0,
         dehumidifierHum: 0,
         timer: 0,
+        co2MinPct: 0,
+        co2MaxPct: 0,
+        nh3MinPct: 0,
+        nh3MaxPct: 0,
       };
 
   const thresholdFields = [
@@ -47,7 +57,11 @@ const ThresholdTimer = () => {
     { key: "heaterTempMax", method: "setHeaterTempMax", title: "Heater Temp Max", unit: "°C", step: "0.1" },
     { key: "fanOnDuration", method: "setFanOnDuration", title: "Fan On Duration", unit: "s", step: "0.1" },
     { key: "fanOffDuration", method: "setFanOffDuration", title: "Fan Off Duration", unit: "s", step: "0.1" },
-    { key: "dehumidifierHum", method: "setDehumidifierHum", title: "Dehumidifier", unit: "%", step: "0.1" },
+    { key: "co2MinPct", method: "setCo2MinPct", title: "CO2 Min", unit: "%", step: "0.1" },
+    { key: "co2MaxPct", method: "setCo2MaxPct", title: "CO2 Max", unit: "%", step: "0.1" },
+    { key: "nh3MinPct", method: "setNh3MinPct", title: "NH3 Min", unit: "%", step: "0.1" },
+    { key: "nh3MaxPct", method: "setNh3MaxPct", title: "NH3 Max", unit: "%", step: "0.1" },
+    { key: "dehumidifierHum", method: "setDehumidifierHum", title: "Dehumidifier", unit: "%", step: "0.1" }
   ];
 
   const saveThreshold = async (method, title, value) => {
@@ -61,17 +75,19 @@ const ThresholdTimer = () => {
     <div className="dashboard" style={{ paddingTop: 0 }}>
       <p className="section-label">Thresholds & Timers</p>
       <div className="grid threshold-grid">
-        {thresholdFields.map(({ key, method, title, unit, step }) => (
-          <ThresholdCard
-            key={method}
-            title={title}
-            value={displayData[key]}
-            unit={unit}
-            step={step}
-            onSave={(value) => saveThreshold(method, title, value)}
-            disabled={actionDisabled}
-          />
-        ))}
+        {thresholdFields
+          .filter(({ key }) => isCO2NH3User || !["co2MinPct", "co2MaxPct", "nh3MinPct", "nh3MaxPct"].includes(key))
+          .map(({ key, method, title, unit, step }) => (
+            <ThresholdCard
+              key={method}
+              title={title}
+              value={displayData[key]}
+              unit={unit}
+              step={step}
+              onSave={(value) => saveThreshold(method, title, value)}
+              disabled={actionDisabled}
+            />
+          ))}
       </div>
     </div>
   );

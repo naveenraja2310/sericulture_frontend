@@ -12,6 +12,10 @@ const THRESHOLD_ICONS = {
   "Heater Temp Max":       "ti-flame",
   "Fan On Duration":       "ti-clock-play",
   "Fan Off Duration":      "ti-clock-play",
+  "CO2 Min":               "ti-co2",
+  "CO2 Max":               "ti-co2",
+  "NH3 Min":               "ti-nh3",
+  "NH3 Max":               "ti-nh3",
   "Dehumidifier":          "ti-droplet",
 };
 
@@ -27,6 +31,10 @@ const THRESHOLD_UNITS = {
   "Heater Temp Max":       "°C",
   "Fan On Duration":       "s",
   "Fan Off Duration":      "s",
+  "CO2 Min":               "%",
+  "CO2 Max":               "%",
+  "NH3 Min":               "%",
+  "NH3 Max":               "%",
   "Dehumidifier":          "%",
 };
 

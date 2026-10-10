@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { getStatus, getTelemetries, sendDeviceAction, setMode, setThresholdValue, setStage, updateSystemEnabled, setStageSettings as saveStageSettings } from "../api/deviceApi";
+import { getStatus, getTelemetries, sendDeviceAction, setMode, apiSetThresholdAdmin, setStage, updateSystemEnabled, setStageSettings as saveStageSettings } from "../api/deviceApi";
 import toast from "react-hot-toast";
+import { getStoredIsCO2NH3User } from "../utils/auth";
 
 const Devices = () => {
+  const isCO2NH3User = getStoredIsCO2NH3User();
   const [telemetry, setTelemetry] = useState([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -22,11 +24,19 @@ const Devices = () => {
     fanOnDuration: 0,
     fanOffDuration: 0,
     dehumidifierHum: 0,
+    co2MinPct: 0,
+    co2MaxPct: 0,
+    nh3MinPct: 0,
+    nh3MaxPct: 0,
+    tempOffset: 0,
+    humOffset: 0,
+    co2Offset: 0,
+    nh3Offset: 0,
   });
   const [stageSettings, setStageSettings] = useState([]);
   const [stageValue, setStageValue] = useState(1);
   const [stageSaving, setStageSaving] = useState(false);
-  const [thresholdSaving, setThresholdSaving] = useState(null);
+  const [thresholdSaving, setThresholdSaving] = useState(false);
 
   const applyTelemetryResponse = (response) => {
     if (response && response.data) {
@@ -79,8 +89,26 @@ const fetch = async () => {
   };
 
   const handleSuccessfulSave = async () => {
-    closeView();
-    await handleRefreshLatestData();
+    const deviceId = selected?.deviceId;
+    if (!deviceId) return;
+
+    await getStatus(deviceId);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    const response = await getTelemetries({ page, limit, search });
+    const updatedDevice = response?.data?.telemetry?.find(
+      (item) => item.deviceId === deviceId
+    );
+    if (!updatedDevice) return;
+
+    setTelemetry((current) =>
+      current.map((item) =>
+        item.deviceId === deviceId ? { ...item, ...updatedDevice } : item
+      )
+    );
+    setSelected((current) =>
+      current?.deviceId === deviceId ? { ...current, ...updatedDevice } : current
+    );
   };
 
   const openView = (t) => {
@@ -96,6 +124,14 @@ const fetch = async () => {
       fanOnDuration: t.fanOnDuration || 0,
       fanOffDuration: t.fanOffDuration || 0,
       dehumidifierHum: t.dehumidifierHum || 0,
+      co2MinPct: t.co2MinPct || 0,
+      co2MaxPct: t.co2MaxPct || 0,
+      nh3MinPct: t.nh3MinPct || 0,
+      nh3MaxPct: t.nh3MaxPct || 0,
+      tempOffset: t.tempOffset || 0,
+      humOffset: t.humOffset || 0,
+      co2Offset: t.co2Offset || 0,
+      nh3Offset: t.nh3Offset || 0,
     });
     setStageSettings(Array.isArray(t.stages) ? t.stages : []);
     setStageValue(t.activeStage >= 1 ? t.activeStage : 1);
@@ -127,18 +163,18 @@ const fetch = async () => {
     finally { setStageSaving(false); }
   };
 
-  const saveThreshold = async (method, field) => {
+  const saveThresholds = async () => {
     if (!selected) return;
-    setThresholdSaving(field);
+    setThresholdSaving(true);
     try {
-      await setThresholdValue(selected.deviceId, method, thresholdForm[field]);
+      await apiSetThresholdAdmin(selected.deviceId, thresholdForm);
       await handleSuccessfulSave();
-      toast.success(`${field} updated`);
+      toast.success("Thresholds and timers updated");
     } catch (e) {
       console.error(e);
-      toast.error(`Failed to update ${field}`);
+      toast.error("Failed to update thresholds and timers");
     } finally {
-      setThresholdSaving(null);
+      setThresholdSaving(false);
     }
   };
 
@@ -318,6 +354,24 @@ const fetch = async () => {
                     <span className="dv-stat-value">{selected.humidity != null ? selected.humidity.toFixed(2) : "—"} <small>%</small></span>
                   </div>
                 </div>
+                {isCO2NH3User && (
+                  <>
+                    <div className="dv-stat">
+                      <i className="ti ti-co2" aria-hidden="true" />
+                      <div>
+                        <span className="dv-stat-label">CO2</span>
+                        <span className="dv-stat-value">{selected.co2 != null ? selected.co2.toFixed(2) : "—"} <small>%</small></span>
+                      </div>
+                    </div>
+                    <div className="dv-stat">
+                      <i className="ti ti-nh3" aria-hidden="true" />
+                      <div>
+                        <span className="dv-stat-label">NH3</span>
+                        <span className="dv-stat-value">{selected.nh3 != null ? selected.nh3.toFixed(2) : "—"} <small>%</small></span>
+                      </div>
+                    </div>
+                  </>
+                )}
                 <div className="dv-stat">
                   <i
                     className={`ti ${selected.sensorFailure ? "ti-alert-circle" : "ti-shield-check"}`}
@@ -463,46 +517,67 @@ const fetch = async () => {
               <p className="dv-section-label">Thresholds & Timers</p>
               <div className="dv-threshold-grid">
                 {[
-                  { label: "Fan Temp Min", icon: "ti-temperature", unit: "°C", field: "fanTempMin", method: "setFanTempMin" },
-                  { label: "Fan Temp Max", icon: "ti-temperature", unit: "°C", field: "fanTempMax", method: "setFanTempMax" },
-                  { label: "Motor Hum Min", icon: "ti-droplet", unit: "%", field: "motorHumMin", method: "setMotorHumMin" },
-                  { label: "Motor Hum Max", icon: "ti-droplet", unit: "%", field: "motorHumMax", method: "setMotorHumMax" },
-                  { label: "Heater Temp Min", icon: "ti-flame", unit: "°C", field: "heaterTempMin", method: "setHeaterTempMin" },
-                  { label: "Heater Temp Max", icon: "ti-flame", unit: "°C", field: "heaterTempMax", method: "setHeaterTempMax" },
-                  { label: "Fan On Duration", icon: "ti-clock-play", unit: "s", field: "fanOnDuration", method: "setFanOnDuration" },
-                  { label: "Fan Off Duration", icon: "ti-clock-play", unit: "s", field: "fanOffDuration", method: "setFanOffDuration" },
-                  { label: "dehumidifierHum", icon: "ti-droplet", unit: "%", field: "dehumidifierHum", method: "setDehumidifierHum" },
-                ].map(({ label, icon, unit, field, method }) => (
-                  <div key={field} className="card" style={{ padding: "14px 16px" }}>
-                    <div className="card-label">
-                      <i className={`ti ${icon}`} aria-hidden="true" />
-                      {label}
-                    </div>
-                    <div className="threshold-box">
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={thresholdForm[field]}
-                        onChange={e => setThresholdForm({ ...thresholdForm, [field]: parseFloat(e.target.value || 0) })}
-                        disabled={updating || thresholdSaving === field}
-                        placeholder={`Value (${unit})`}
-                      />
-                      <span className="stage-field-unit">{unit}</span>
-                      <button
-                        onClick={() => saveThreshold(method, field)}
-                        disabled={updating || thresholdSaving !== null}
-                        aria-label={`Save ${label}`}
-                      >
-                        <i
-                          className={`ti ${thresholdSaving === field ? "ti-loader-2" : "ti-device-floppy"}`}
-                          style={thresholdSaving === field ? { animation: "spin 0.9s linear infinite" } : {}}
-                          aria-hidden="true"
+                  { label: "Fan Temp Min", icon: "ti-temperature", unit: "°C", field: "fanTempMin" },
+                  { label: "Fan Temp Max", icon: "ti-temperature", unit: "°C", field: "fanTempMax" },
+                  { label: "Motor Hum Min", icon: "ti-droplet", unit: "%", field: "motorHumMin" },
+                  { label: "Motor Hum Max", icon: "ti-droplet", unit: "%", field: "motorHumMax" },
+                  { label: "Heater Temp Min", icon: "ti-flame", unit: "°C", field: "heaterTempMin" },
+                  { label: "Heater Temp Max", icon: "ti-flame", unit: "°C", field: "heaterTempMax" },
+                  { label: "Fan On Duration", icon: "ti-clock-play", unit: "s", field: "fanOnDuration" },
+                  { label: "Fan Off Duration", icon: "ti-clock-play", unit: "s", field: "fanOffDuration" },
+                  { label: "CO2 Min", icon: "ti-co2", unit: "%", field: "co2MinPct" },
+                  { label: "CO2 Max", icon: "ti-co2", unit: "%", field: "co2MaxPct" },
+                  { label: "NH3 Min", icon: "ti-nh3", unit: "%", field: "nh3MinPct" },
+                  { label: "NH3 Max", icon: "ti-nh3", unit: "%", field: "nh3MaxPct" },
+                  { label: "Temp Offset", icon: "ti-temperature", unit: "°C", field: "tempOffset" },
+                  { label: "Hum Offset", icon: "ti-droplet", unit: "%", field: "humOffset" },
+                  { label: "CO2 Offset", icon: "ti-co2", unit: "%", field: "co2Offset" },
+                  { label: "NH3 Offset", icon: "ti-nh3", unit: "%", field: "nh3Offset" },
+                  { label: "Dehumidifier", icon: "ti-droplet", unit: "%", field: "dehumidifierHum" },
+                ]
+                  .filter(({ field }) => isCO2NH3User || ![
+                    "co2MinPct",
+                    "co2MaxPct",
+                    "nh3MinPct",
+                    "nh3MaxPct",
+                    "tempOffset",
+                    "humOffset",
+                    "co2Offset",
+                    "nh3Offset",
+                  ].includes(field))
+                  .map(({ label, icon, unit, field }) => (
+                    <div key={field} className="card" style={{ padding: "14px 16px" }}>
+                      <div className="card-label">
+                        <i className={`ti ${icon}`} aria-hidden="true" />
+                        {label}
+                      </div>
+                      <div className="threshold-box">
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={thresholdForm[field]}
+                          onChange={e => setThresholdForm({ ...thresholdForm, [field]: parseFloat(e.target.value || 0) })}
+                          disabled={updating || thresholdSaving}
+                          placeholder={`Value (${unit})`}
                         />
-                        {thresholdSaving === field ? "Saving…" : "Set"}
-                      </button>
+                        <span className="stage-field-unit">{unit}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+                <button
+                  className="stage-save-btn"
+                  onClick={saveThresholds}
+                  disabled={updating || thresholdSaving}
+                >
+                  <i
+                    className={`ti ${thresholdSaving ? "ti-loader-2" : "ti-device-floppy"}`}
+                    style={thresholdSaving ? { animation: "spin 0.9s linear infinite" } : {}}
+                    aria-hidden="true"
+                  />
+                  {thresholdSaving ? "Saving…" : "Save Thresholds & Timers"}
+                </button>
               </div>
 
               {/* ── Stage settings ── */}
